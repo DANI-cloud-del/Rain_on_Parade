@@ -12,13 +12,12 @@
 </head>
 
 <body>
-   {% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Home Page{% endblock %}
 
 {% block content %}
-    <h1>Welcome to Rain on Parade!</h1>
-    <p>Plan your event with confidence.</p>
+    {% include 'chatbot_interface.html' %}
 {% endblock %}
 </body>
 </html>

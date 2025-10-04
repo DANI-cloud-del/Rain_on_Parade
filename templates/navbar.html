@@ -1,29 +1,169 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary rounded">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Rain on Parade</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
-                data-bs-target="#navbarsExample11" aria-controls="navbarsExample11" 
-                aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse d-lg-flex" id="navbarsExample11">
-            <ul class="navbar-nav col-lg-6 justify-content-lg-center">
-                <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Link</a></li>
-                <li class="nav-item"><a class="nav-link disabled">Disabled</a></li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Dropdown</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                    </ul>
-                </li>
-            </ul>
-            <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-                <button class="btn btn-primary">Button</button>
+<nav class="navbar">
+    <div class="nav-container">
+        <!-- Logo Section -->
+        <a href="{{ url_for('home') }}" class="logo">
+            <div class="logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
             </div>
+            <span class="logo-text">MyApp</span>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <ul class="nav-links">
+            <li><a href="{{ url_for('home') }}" class="nav-link" data-text="Home">Home</a></li>
+            <li><a href="#" class="nav-link" data-text="Scheduler">Scheduler</a></li>
+            <li><a href="#" class="nav-link" data-text="Forecaster">Forecaster</a></li>
+        </ul>
+
+        <!-- Right Side Actions -->
+        <div class="nav-actions">
+            <!-- Search Container -->
+            <div class="search-container">
+                <button class="search-toggle" id="searchToggle" aria-label="Toggle search">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="11" cy="11" r="8" stroke-width="2"></circle>
+                        <path d="m21 21-4.35-4.35" stroke-width="2"></path>
+                    </svg>
+                </button>
+                <div class="search-box" id="searchBox">
+                    <input type="text" class="search-input" placeholder="Search..." id="searchInput">
+                    <button class="search-close" id="searchClose" aria-label="Close search">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <line x1="18" y1="6" x2="6" y2="18" stroke-width="2"></line>
+                            <line x1="6" y1="6" x2="18" y2="18" stroke-width="2"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dark Mode Toggle -->
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                <div class="toggle-track">
+                    <div class="toggle-thumb">
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="5" stroke-width="2"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3" stroke-width="2"></line>
+                            <line x1="12" y1="21" x2="12" y2="23" stroke-width="2"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke-width="2"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke-width="2"></line>
+                            <line x1="1" y1="12" x2="3" y2="12" stroke-width="2"></line>
+                            <line x1="21" y1="12" x2="23" y2="12" stroke-width="2"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke-width="2"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke-width="2"></line>
+                        </svg>
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-width="2"></path>
+                        </svg>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="{{ url_for('home') }}" class="mobile-nav-link">Home</a>
+        <a href="#" class="mobile-nav-link">Scheduler</a>
+        <a href="#" class="mobile-nav-link">Forecaster</a>
+        <div class="mobile-search">
+            <input type="text" class="mobile-search-input" placeholder="Search...">
         </div>
     </div>
 </nav>
+
+<script>
+// Dark Mode Toggle
+const themeToggle = document.getElementById('themeToggle');
+const body = document.body;
+
+// Check for saved theme
+const currentTheme = localStorage.getItem('theme') || 'light';
+if (currentTheme === 'dark') {
+    body.classList.add('dark-mode');
+}
+
+// Toggle theme
+themeToggle.addEventListener('click', () => {
+    body.classList.toggle('dark-mode');
+    const theme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+    localStorage.setItem('theme', theme);
+});
+
+// Search Toggle (Desktop)
+const searchToggle = document.getElementById('searchToggle');
+const searchBox = document.getElementById('searchBox');
+const searchClose = document.getElementById('searchClose');
+const searchInput = document.getElementById('searchInput');
+
+searchToggle.addEventListener('click', () => {
+    searchBox.classList.add('active');
+    searchInput.focus();
+});
+
+searchClose.addEventListener('click', () => {
+    searchBox.classList.remove('active');
+    searchInput.value = '';
+});
+
+// Close search on escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && searchBox.classList.contains('active')) {
+        searchBox.classList.remove('active');
+        searchInput.value = '';
+    }
+});
+
+// Search on enter
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        const query = searchInput.value.trim();
+        if (query) {
+            console.log('Searching for:', query);
+            // Add your search logic here
+            // window.location.href = `/search?q=${encodeURIComponent(query)}`;
+        }
+    }
+});
+
+// Mobile Menu Toggle
+const mobileToggle = document.getElementById('mobileToggle');
+const mobileNav = document.getElementById('mobileNav');
+
+mobileToggle.addEventListener('click', () => {
+    mobileToggle.classList.toggle('active');
+    mobileNav.classList.toggle('active');
+});
+
+// Close mobile menu on link click
+document.querySelectorAll('.mobile-nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+        mobileToggle.classList.remove('active');
+        mobileNav.classList.remove('active');
+    });
+});
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-container') && !e.target.closest('.mobile-nav')) {
+        mobileToggle.classList.remove('active');
+        mobileNav.classList.remove('active');
+    }
+});
+
+// Active link highlighting
+const currentPath = window.location.pathname;
+document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
+    if (link.getAttribute('href') === currentPath) {
+        link.classList.add('active');
+    }
+});
+</script>
