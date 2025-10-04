@@ -795,7 +795,7 @@
 </style>
 
 <script>
-// Chatbot Functionality with Backend Integration
+// Chatbot Functionality with LocalStorage Persistence
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
@@ -803,65 +803,143 @@ const voiceBtn = document.getElementById('voiceBtn');
 const clearChatBtn = document.getElementById('clearChatBtn');
 const typingIndicator = document.getElementById('typingIndicator');
 const voiceVisualization = document.getElementById('voiceVisualization');
-const inputContainer = document.getElementById('inputContainer');
+
+// Generate unique session ID
+const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+// Get current page context
+const currentPage = document.body.dataset.page || 'home';
 
 let isRecording = false;
 let isSpeaking = false;
 let currentRecognition = null;
+let autoSpeakEnabled = true;
 
-// Send Message Function with Backend Integration
-function sendMessage() {
+// LocalStorage key for chat history
+const CHAT_HISTORY_KEY = 'rain_assistant_chat_history';
+
+// Load chat history from localStorage on page load
+function loadChatHistory() {
+    try {
+        const savedHistory = localStorage.getItem(CHAT_HISTORY_KEY);
+        if (savedHistory) {
+            const messages = JSON.parse(savedHistory);
+            
+            // Clear existing messages except welcome message
+            chatMessages.innerHTML = '';
+            
+            // Restore each message
+            messages.forEach(msg => {
+                addMessageToUI(msg.text, msg.sender, msg.time, false); // false = don't save again
+            });
+            
+            scrollToBottom();
+            console.log('Chat history loaded:', messages.length, 'messages');
+        }
+    } catch (error) {
+        console.error('Error loading chat history:', error);
+    }
+}
+
+// Save chat history to localStorage
+function saveChatHistory() {
+    try {
+        const messages = [];
+        const messageElements = chatMessages.querySelectorAll('.message-wrapper');
+        
+        messageElements.forEach(element => {
+            const sender = element.classList.contains('bot-message') ? 'bot' : 'user';
+            const text = element.querySelector('.message-bubble p').textContent;
+            const time = element.querySelector('.message-time').textContent;
+            
+            messages.push({ sender, text, time });
+        });
+        
+        localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(messages));
+        console.log('Chat history saved:', messages.length, 'messages');
+    } catch (error) {
+        console.error('Error saving chat history:', error);
+    }
+}
+
+// Send Message Function
+async function sendMessage() {
     const message = chatInput.value.trim();
     if (!message) return;
 
-    // Add user message
     addMessage(message, 'user');
     chatInput.value = '';
-
-    // Show typing indicator
     showTypingIndicator();
 
-    // Send message to backend API
-    fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            message: message
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: message,
+                session_id: sessionId,
+                current_page: currentPage
+            })
+        });
+
+        const data = await response.json();
         hideTypingIndicator();
-        
+
         if (data.success) {
             addMessage(data.response, 'bot');
-            // Optional: Auto-speak the response
-            // speakText(data.response);
+            
+            // AUTO-SPEAK: Automatically speak the bot's response
+            if (autoSpeakEnabled) {
+                speakText(data.response);
+            }
+            
+            // Handle navigation
+            if (data.navigate_to) {
+                const navigationMessages = {
+                    'home': 'Taking you to the home page...',
+                    'scheduler': 'Opening the Event Scheduler...',
+                    'forecaster': 'Loading the Weather Forecaster...'
+                };
+                
+                const navMessage = navigationMessages[data.navigate_to] || 'Navigating...';
+                console.log(navMessage);
+                
+                setTimeout(() => {
+                    const navigationMap = {
+                        'home': '/',
+                        'scheduler': '/scheduler',
+                        'forecaster': '/forecaster'
+                    };
+                    
+                    const targetPath = navigationMap[data.navigate_to];
+                    
+                    if (targetPath) {
+                        window.location.href = targetPath;
+                    } else {
+                        console.error('Unknown navigation target:', data.navigate_to);
+                    }
+                }, 2000);
+            }
         } else {
             addMessage('Sorry, I encountered an error. Please try again.', 'bot');
-            console.error('API Error:', data.error);
         }
-    })
-    .catch(error => {
+    } catch (error) {
+        console.error('Error:', error);
         hideTypingIndicator();
-        addMessage('Sorry, I could not connect to the server. Please check your connection.', 'bot');
-        console.error('Fetch Error:', error);
-    });
+        addMessage('Sorry, I could not connect to the server.', 'bot');
+    }
 }
 
-// Add Message to Chat
+// Add Message (wrapper that saves to localStorage)
 function addMessage(text, sender) {
+    const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    addMessageToUI(text, sender, time, true); // true = save to localStorage
+}
+
+// Add Message to UI (with optional save)
+function addMessageToUI(text, sender, time, shouldSave = true) {
     const messageWrapper = document.createElement('div');
     messageWrapper.className = `message-wrapper ${sender}-message`;
-
-    const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
     messageWrapper.innerHTML = `
         <div class="message-avatar">
@@ -874,7 +952,7 @@ function addMessage(text, sender) {
         </div>
         <div class="message-content">
             <div class="message-bubble">
-                <p>${text}</p>
+                <p>${escapeHtml(text)}</p>
             </div>
             <div class="message-actions">
                 ${sender === 'bot' ? `
@@ -890,7 +968,7 @@ function addMessage(text, sender) {
         </div>
     `;
 
-    // Remove quick actions if they exist
+    // Remove quick actions on first user message
     const quickActions = document.getElementById('quickActions');
     if (quickActions && sender === 'user') {
         quickActions.remove();
@@ -902,18 +980,24 @@ function addMessage(text, sender) {
     // Add speak button functionality
     if (sender === 'bot') {
         const speakBtn = messageWrapper.querySelector('.speak-btn');
-        speakBtn.addEventListener('click', () => speakText(speakBtn.dataset.message, speakBtn));
+        if (speakBtn) {
+            speakBtn.addEventListener('click', () => speakText(speakBtn.dataset.message, speakBtn));
+        }
+    }
+
+    // Save to localStorage if requested
+    if (shouldSave) {
+        saveChatHistory();
     }
 }
 
-// Escape HTML for security
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-// Text-to-Speech Function
+// Enhanced Text-to-Speech with English Voice
 function speakText(text, button) {
     if (isSpeaking) {
         window.speechSynthesis.cancel();
@@ -922,11 +1006,21 @@ function speakText(text, button) {
         return;
     }
 
-    // Using browser's Web Speech API
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;
+    utterance.lang = 'en-US';
+    utterance.rate = 0.95;
     utterance.pitch = 1;
     utterance.volume = 1;
+    
+    const voices = window.speechSynthesis.getVoices();
+    const englishVoice = voices.find(voice => 
+        (voice.lang === 'en-US' || voice.lang === 'en-GB') && 
+        (voice.name.includes('Google') || voice.name.includes('Microsoft'))
+    ) || voices.find(voice => voice.lang.startsWith('en'));
+    
+    if (englishVoice) {
+        utterance.voice = englishVoice;
+    }
     
     utterance.onstart = () => {
         isSpeaking = true;
@@ -938,28 +1032,25 @@ function speakText(text, button) {
         if (button) button.classList.remove('speaking');
     };
 
-    utterance.onerror = (event) => {
-        console.error('Speech synthesis error:', event);
+    utterance.onerror = () => {
         isSpeaking = false;
         if (button) button.classList.remove('speaking');
     };
 
-    window.speechSynthesis.speak(utterance);
-
-    // Optional: Use backend TTS (for future implementation)
-    // fetch('/api/tts', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ text: text })
-    // })
-    // .then(response => response.blob())
-    // .then(blob => {
-    //     const audio = new Audio(URL.createObjectURL(blob));
-    //     audio.play();
-    // });
+    window.speechSynthesis.cancel();
+    setTimeout(() => {
+        window.speechSynthesis.speak(utterance);
+    }, 100);
 }
 
-// Voice Input Function
+// Load voices
+if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
+}
+
+// Voice Input
 function toggleVoiceInput() {
     if (!isRecording) {
         startVoiceRecording();
@@ -969,49 +1060,44 @@ function toggleVoiceInput() {
 }
 
 function startVoiceRecording() {
-    // Check if browser supports speech recognition
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        alert('Speech recognition is not supported in your browser. Please use Chrome or Edge.');
+        alert('Speech recognition not supported. Please use Chrome, Edge, or Safari.');
         return;
     }
 
-    isRecording = true;
-    voiceBtn.classList.add('active');
-    voiceVisualization.classList.add('active');
-
-    // Browser Speech Recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
+    currentRecognition = new SpeechRecognition();
+    currentRecognition.continuous = false;
+    currentRecognition.interimResults = false;
+    currentRecognition.lang = 'en-US';
 
-    recognition.onresult = (event) => {
+    currentRecognition.onstart = () => {
+        isRecording = true;
+        voiceBtn.classList.add('active');
+        voiceVisualization.classList.add('active');
+    };
+
+    currentRecognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         chatInput.value = transcript;
-        stopVoiceRecording();
-        
-        // Optional: Auto-send after voice input
-        // sendMessage();
+        chatInput.focus();
     };
 
-    recognition.onerror = (event) => {
+    currentRecognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         stopVoiceRecording();
-        
-        if (event.error === 'no-speech') {
-            alert('No speech detected. Please try again.');
-        } else if (event.error === 'not-allowed') {
-            alert('Microphone access denied. Please enable microphone permissions.');
-        }
     };
 
-    recognition.onend = () => {
+    currentRecognition.onend = () => {
         stopVoiceRecording();
     };
 
-    recognition.start();
-    currentRecognition = recognition;
+    try {
+        currentRecognition.start();
+    } catch (error) {
+        console.error('Error starting recognition:', error);
+        stopVoiceRecording();
+    }
 }
 
 function stopVoiceRecording() {
@@ -1025,7 +1111,6 @@ function stopVoiceRecording() {
     }
 }
 
-// Typing Indicator
 function showTypingIndicator() {
     typingIndicator.classList.add('active');
     scrollToBottom();
@@ -1035,54 +1120,66 @@ function hideTypingIndicator() {
     typingIndicator.classList.remove('active');
 }
 
-// Scroll to Bottom
 function scrollToBottom() {
     setTimeout(() => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }, 100);
 }
 
-// Clear Chat
-function clearChat() {
-    if (confirm('Are you sure you want to clear the chat history?')) {
-        chatMessages.innerHTML = `
-            <div class="message-wrapper bot-message">
-                <div class="message-avatar">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
-                </div>
-                <div class="message-content">
-                    <div class="message-bubble">
-                        <p>👋 Chat cleared! How can I assist you?</p>
+// Clear Chat with localStorage clearing
+async function clearChat() {
+    if (confirm('Clear chat history? This will remove all messages.')) {
+        try {
+            // Clear backend conversation history
+            await fetch('/api/clear-chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: sessionId })
+            });
+
+            // Clear localStorage
+            localStorage.removeItem(CHAT_HISTORY_KEY);
+            
+            // Reset UI with welcome message
+            chatMessages.innerHTML = `
+                <div class="message-wrapper bot-message">
+                    <div class="message-avatar">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
                     </div>
-                    <div class="message-actions">
-                        <span class="message-time">Just now</span>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <p>👋 Chat cleared! How can I assist you?</p>
+                        </div>
+                        <div class="message-actions">
+                            <span class="message-time">Just now</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+            
+            console.log('Chat history cleared from localStorage');
+        } catch (error) {
+            console.error('Error clearing chat:', error);
+        }
     }
 }
 
-// Quick Action Handlers
-document.addEventListener('click', (e) => {
+// Quick Actions
+document.addEventListener('click', async (e) => {
     if (e.target.closest('.quick-action-btn')) {
         const action = e.target.closest('.quick-action-btn').dataset.action;
         
-        let userMessage = '';
+        const messages = {
+            'scheduler': "Take me to the scheduler page",
+            'forecaster': "Show me the weather forecast",
+            'help': "How do I use this app?"
+        };
         
-        if (action === 'scheduler') {
-            userMessage = "Take me to the scheduler page";
-        } else if (action === 'forecaster') {
-            userMessage = "Show me the weather forecast";
-        } else if (action === 'help') {
-            userMessage = "How do I use this app?";
-        }
-        
-        if (userMessage) {
-            chatInput.value = userMessage;
+        if (messages[action]) {
+            chatInput.value = messages[action];
             sendMessage();
         }
     }
@@ -1100,17 +1197,17 @@ chatInput.addEventListener('keypress', (e) => {
     }
 });
 
-// Prevent form submission on Enter
-chatInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-    }
+// Initialize: Load chat history on page load
+window.addEventListener('DOMContentLoaded', () => {
+    loadChatHistory();
+    chatInput.focus();
 });
 
-// Initialize
-scrollToBottom();
-
-// Test connection on load
-console.log('Chatbot interface loaded successfully');
+// Also initialize if DOMContentLoaded already fired
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    loadChatHistory();
+    chatInput.focus();
+}
 </script>
+
 

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecaster - Rain on Parade</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body data-page="forecaster">
+{% extends 'base.html' %}
+
+{% block title %}Weather Forecaster{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>⛅ Weather Forecaster</h1>
+        <p>Check detailed weather forecasts for your events</p>
+    </div>
+
+    <div class="forecaster-content">
+        <div class="search-location-card">
+            <h2>Search Location</h2>
+            <div class="location-search">
+                <input type="text" id="locationInput" placeholder="Enter city name..." class="location-input">
+                <button class="btn-search">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+                        <circle cx="11" cy="11" r="8" stroke-width="2"></circle>
+                        <path d="m21 21-4.35-4.35" stroke-width="2"></path>
+                    </svg>
+                    Search
+                </button>
+            </div>
+        </div>
+
+        <div class="current-weather-card">
+            <h2>Current Weather - Mumbai</h2>
+            <div class="current-weather">
+                <div class="weather-main">
+                    <div class="weather-icon">🌤️</div>
+                    <div class="weather-temp">
+                        <span class="temp-value">28°C</span>
+                        <span class="temp-feels">Feels like 30°C</span>
+                    </div>
+                </div>
+                <div class="weather-details">
+                    <div class="weather-detail-item">
+                        <span class="detail-label">💧 Humidity</span>
+                        <span class="detail-value">65%</span>
+                    </div>
+                    <div class="weather-detail-item">
+                        <span class="detail-label">💨 Wind</span>
+                        <span class="detail-value">12 km/h</span>
+                    </div>
+                    <div class="weather-detail-item">
+                        <span class="detail-label">🌧️ Rain Chance</span>
+                        <span class="detail-value">20%</span>
+                    </div>
+                    <div class="weather-detail-item">
+                        <span class="detail-label">👁️ Visibility</span>
+                        <span class="detail-value">10 km</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="forecast-card">
+            <h2>7-Day Forecast</h2>
+            <div class="forecast-days">
+                <div class="forecast-day">
+                    <span class="day-name">Mon</span>
+                    <span class="day-icon">☀️</span>
+                    <span class="day-temp">29°/22°</span>
+                    <span class="day-rain">10%</span>
+                </div>
+                <div class="forecast-day">
+                    <span class="day-name">Tue</span>
+                    <span class="day-icon">⛅</span>
+                    <span class="day-temp">28°/21°</span>
+                    <span class="day-rain">15%</span>
+                </div>
+                <div class="forecast-day">
+                    <span class="day-name">Wed</span>
+                    <span class="day-icon">🌧️</span>
+                    <span class="day-temp">26°/20°</span>
+                    <span class="day-rain">70%</span>
+                </div>
+                <div class="forecast-day">
+                    <span class="day-name">Thu</span>
+                    <span class="day-icon">🌤️</span>
+                    <span class="day-temp">27°/21°</span>
+                    <span class="day-rain">25%</span>
+                </div>
+                <div class="forecast-day">
+                    <span class="day-name">Fri</span>
+                    <span class="day-icon">☀️</span>
+                    <span class="day-temp">30°/23°</span>
+                    <span class="day-rain">5%</span>
+                </div>
+                <div class="forecast-day">
+                    <span class="day-name">Sat</span>
+                    <span class="day-icon">☀️</span>
+                    <span class="day-temp">31°/24°</span>
+                    <span class="day-rain">5%</span>
+                </div>
+                <div class="forecast-day">
+                    <span class="day-name">Sun</span>
+                    <span class="day-icon">⛅</span>
+                    <span class="day-temp">29°/23°</span>
+                    <span class="day-rain">20%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'chatbot_interface.html' %}
+</div>
+
+<style>
+.forecaster-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.search-location-card, .current-weather-card, .forecast-card {
+    background: var(--bg-elevated);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+.search-location-card h2, .current-weather-card h2, .forecast-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.location-search {
+    display: flex;
+    gap: 1rem;
+}
+
+.location-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.location-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.btn-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-search:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.current-weather {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.weather-main {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.weather-icon {
+    font-size: 5rem;
+}
+
+.weather-temp {
+    display: flex;
+    flex-direction: column;
+}
+
+.temp-value {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.temp-feels {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.weather-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.weather-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+}
+
+.detail-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.forecast-days {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+}
+
+.forecast-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    transition: all var(--transition-fast);
+}
+
+.forecast-day:hover {
+    border-color: var(--accent-color);
+    transform: translateY(-4px);
+}
+
+.day-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.day-icon {
+    font-size: 2rem;
+}
+
+.day-temp {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.day-rain {
+    color: var(--accent-color);
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}
+</body>
+</html>

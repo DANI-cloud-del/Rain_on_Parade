@@ -1,20 +1,20 @@
 <nav class="navbar">
     <div class="nav-container">
         <!-- Logo Section -->
-        <a href="{{ url_for('home') }}" class="logo">
+        <a href="/" class="logo">
             <div class="logo-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                 </svg>
             </div>
-            <span class="logo-text">MyApp</span>
+            <span class="logo-text">Rain on Parade</span>
         </a>
 
         <!-- Desktop Navigation Links -->
         <ul class="nav-links">
-            <li><a href="{{ url_for('home') }}" class="nav-link" data-text="Home">Home</a></li>
-            <li><a href="#" class="nav-link" data-text="Scheduler">Scheduler</a></li>
-            <li><a href="#" class="nav-link" data-text="Forecaster">Forecaster</a></li>
+            <li><a href="/" class="nav-link" data-text="Home">Home</a></li>
+            <li><a href="/scheduler" class="nav-link" data-text="Scheduler">Scheduler</a></li>
+            <li><a href="/forecaster" class="nav-link" data-text="Forecaster">Forecaster</a></li>
         </ul>
 
         <!-- Right Side Actions -->
@@ -71,9 +71,9 @@
 
     <!-- Mobile Navigation -->
     <div class="mobile-nav" id="mobileNav">
-        <a href="{{ url_for('home') }}" class="mobile-nav-link">Home</a>
-        <a href="#" class="mobile-nav-link">Scheduler</a>
-        <a href="#" class="mobile-nav-link">Forecaster</a>
+        <a href="/" class="mobile-nav-link">Home</a>
+        <a href="/scheduler" class="mobile-nav-link">Scheduler</a>
+        <a href="/forecaster" class="mobile-nav-link">Forecaster</a>
         <div class="mobile-search">
             <input type="text" class="mobile-search-input" placeholder="Search...">
         </div>
@@ -129,7 +129,6 @@ searchInput.addEventListener('keypress', (e) => {
         if (query) {
             console.log('Searching for:', query);
             // Add your search logic here
-            // window.location.href = `/search?q=${encodeURIComponent(query)}`;
         }
     }
 });
@@ -159,10 +158,17 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Active link highlighting
+// Active link highlighting - Updated to work with direct paths
 const currentPath = window.location.pathname;
 document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
-    if (link.getAttribute('href') === currentPath) {
+    const linkPath = link.getAttribute('href');
+    
+    // Exact match for home page
+    if (currentPath === '/' && linkPath === '/') {
+        link.classList.add('active');
+    } 
+    // Match for other pages
+    else if (currentPath !== '/' && linkPath !== '/' && currentPath.startsWith(linkPath)) {
         link.classList.add('active');
     }
 });
