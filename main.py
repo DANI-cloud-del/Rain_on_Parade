@@ -2,11 +2,109 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for
 import os
 from dotenv import load_dotenv
 from groq import Groq
+import json
+from datetime import datetime
+
 
 # Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
+
+# Create data directory if it doesn't exist
+if not os.path.exists('data'):
+    os.makedirs('data')
+
+EVENTS_FILE = 'data/events.json'
+
+# Initialize events file if it doesn't exist
+if not os.path.exists(EVENTS_FILE):
+    with open(EVENTS_FILE, 'w') as f:
+        json.dump({}, f)
+
+# Get all events
+@app.route('/api/events', methods=['GET'])
+def get_events():
+    try:
+        with open(EVENTS_FILE, 'r') as f:
+            events = json.load(f)
+        return jsonify({'success': True, 'events': events})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Get events for a specific date
+@app.route('/api/events/<date>', methods=['GET'])
+def get_events_by_date(date):
+    try:
+        with open(EVENTS_FILE, 'r') as f:
+            events = json.load(f)
+        date_events = events.get(date, [])
+        return jsonify({'success': True, 'events': date_events})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Add or update event
+@app.route('/api/events', methods=['POST'])
+def save_event():
+    try:
+        data = request.json
+        date = data.get('date')
+        event_text = data.get('text')
+        
+        if not date or not event_text:
+            return jsonify({'success': False, 'error': 'Date and text required'}), 400
+        
+        # Load existing events
+        with open(EVENTS_FILE, 'r') as f:
+            events = json.load(f)
+        
+        # Initialize date if not exists
+        if date not in events:
+            events[date] = []
+        
+        # Add new event
+        event_id = len(events[date])
+        new_event = {
+            'id': event_id,
+            'text': event_text,
+            'created_at': datetime.now().isoformat()
+        }
+        events[date].append(new_event)
+        
+        # Save back to file
+        with open(EVENTS_FILE, 'w') as f:
+            json.dump(events, f, indent=2)
+        
+        return jsonify({'success': True, 'event': new_event})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Delete event
+@app.route('/api/events/<date>/<int:event_id>', methods=['DELETE'])
+def delete_event(date, event_id):
+    try:
+        with open(EVENTS_FILE, 'r') as f:
+            events = json.load(f)
+        
+        if date in events and event_id < len(events[date]):
+            events[date].pop(event_id)
+            
+            # Re-index remaining events
+            for i, event in enumerate(events[date]):
+                event['id'] = i
+            
+            # Remove date key if no events left
+            if not events[date]:
+                del events[date]
+            
+            with open(EVENTS_FILE, 'w') as f:
+                json.dump(events, f, indent=2)
+            
+            return jsonify({'success': True})
+        
+        return jsonify({'success': False, 'error': 'Event not found'}), 404
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 # Initialize Groq client
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))

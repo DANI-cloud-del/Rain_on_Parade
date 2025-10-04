@@ -1,30 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Forecaster - Rain on Parade</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body data-page="forecaster">
 {% extends 'base.html' %}
 
-{% block title %}Weather Forecaster{% endblock %}
+{% block title %}Weather Forecaster - Rain on Parade{% endblock %}
 
 {% block content %}
-<div class="page-container">
-    <div class="page-header">
-        <h1>⛅ Weather Forecaster</h1>
-        <p>Check detailed weather forecasts for your events</p>
-    </div>
-
-    <div class="forecaster-content">
-        <div class="search-location-card">
-            <h2>Search Location</h2>
-            <div class="location-search">
-                <input type="text" id="locationInput" placeholder="Enter city name..." class="location-input">
-                <button class="btn-search">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+<body data-page="forecaster">
+<div class="forecaster-layout">
+    <!-- Main Weather Section -->
+    <div class="weather-section">
+        
+        <!-- Search Card WITH VISIBLE INPUT FIELD -->
+        <div class="search-card">
+            <div class="search-header">
+                <h2>🌍 Weather Forecast</h2>
+                <p>Search any city for detailed weather information</p>
+            </div>
+            
+            <!-- THIS IS THE SEARCH BOX - IT WAS MISSING -->
+            <div class="search-box">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke-width="2"></path>
+                    <circle cx="12" cy="10" r="3" stroke-width="2"></circle>
+                </svg>
+                <input 
+                    type="text" 
+                    id="cityInput" 
+                    class="city-input"
+                    placeholder="Enter city name (e.g., Mumbai, Delhi, Bangalore)"
+                    value="Mumbai"
+                >
+                <button type="button" class="search-btn" id="searchBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="11" cy="11" r="8" stroke-width="2"></circle>
                         <path d="m21 21-4.35-4.35" stroke-width="2"></path>
                     </svg>
@@ -33,132 +38,263 @@
             </div>
         </div>
 
+        <!-- Current Weather Card -->
         <div class="current-weather-card">
-            <h2>Current Weather - Mumbai</h2>
-            <div class="current-weather">
-                <div class="weather-main">
-                    <div class="weather-icon">🌤️</div>
-                    <div class="weather-temp">
-                        <span class="temp-value">28°C</span>
-                        <span class="temp-feels">Feels like 30°C</span>
+            <div class="weather-header">
+                <div class="location-info">
+                    <h2 id="cityName">Mumbai</h2>
+                    <p id="currentDate">Sunday, October 5, 2025</p>
+                </div>
+                <button type="button" class="refresh-btn" id="refreshBtn" title="Refresh weather">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="23 4 23 10 17 10" stroke-width="2"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke-width="2"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="weather-main">
+                <div class="weather-icon-large">
+                    <span id="mainWeatherIcon">🌤️</span>
+                </div>
+                <div class="temperature-display">
+                    <h1 class="temperature" id="mainTemp">28°C</h1>
+                    <p class="weather-description" id="weatherDesc">Partly Cloudy</p>
+                    <p class="feels-like">Feels like <span id="feelsLike">30°C</span></p>
+                </div>
+            </div>
+
+            <div class="weather-details-grid">
+                <div class="weather-detail-card">
+                    <div class="detail-icon">💧</div>
+                    <div class="detail-info">
+                        <span class="detail-label">Humidity</span>
+                        <span class="detail-value" id="humidity">65%</span>
                     </div>
                 </div>
-                <div class="weather-details">
-                    <div class="weather-detail-item">
-                        <span class="detail-label">💧 Humidity</span>
-                        <span class="detail-value">65%</span>
+                <div class="weather-detail-card">
+                    <div class="detail-icon">🌬️</div>
+                    <div class="detail-info">
+                        <span class="detail-label">Wind Speed</span>
+                        <span class="detail-value" id="windSpeed">12 km/h</span>
                     </div>
-                    <div class="weather-detail-item">
-                        <span class="detail-label">💨 Wind</span>
-                        <span class="detail-value">12 km/h</span>
+                </div>
+                <div class="weather-detail-card">
+                    <div class="detail-icon">🌧️</div>
+                    <div class="detail-info">
+                        <span class="detail-label">Rain Chance</span>
+                        <span class="detail-value" id="rainChance">20%</span>
                     </div>
-                    <div class="weather-detail-item">
-                        <span class="detail-label">🌧️ Rain Chance</span>
-                        <span class="detail-value">20%</span>
+                </div>
+                <div class="weather-detail-card">
+                    <div class="detail-icon">👁️</div>
+                    <div class="detail-info">
+                        <span class="detail-label">Visibility</span>
+                        <span class="detail-value" id="visibility">10 km</span>
                     </div>
-                    <div class="weather-detail-item">
-                        <span class="detail-label">👁️ Visibility</span>
-                        <span class="detail-value">10 km</span>
+                </div>
+                <div class="weather-detail-card">
+                    <div class="detail-icon">🌡️</div>
+                    <div class="detail-info">
+                        <span class="detail-label">Pressure</span>
+                        <span class="detail-value" id="pressure">1013 mb</span>
+                    </div>
+                </div>
+                <div class="weather-detail-card">
+                    <div class="detail-icon">🌅</div>
+                    <div class="detail-info">
+                        <span class="detail-label">UV Index</span>
+                        <span class="detail-value" id="uvIndex">7</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="forecast-card">
-            <h2>7-Day Forecast</h2>
-            <div class="forecast-days">
-                <div class="forecast-day">
+        <!-- 7-Day Forecast -->
+        <div class="forecast-section">
+            <h3 class="section-title">📅 7-Day Forecast</h3>
+            <div class="forecast-grid">
+                <div class="forecast-card">
                     <span class="day-name">Mon</span>
-                    <span class="day-icon">☀️</span>
-                    <span class="day-temp">29°/22°</span>
-                    <span class="day-rain">10%</span>
+                    <span class="forecast-icon">☀️</span>
+                    <span class="forecast-temp">29° / 22°</span>
+                    <span class="rain-text">10% rain</span>
                 </div>
-                <div class="forecast-day">
+                <div class="forecast-card">
                     <span class="day-name">Tue</span>
-                    <span class="day-icon">⛅</span>
-                    <span class="day-temp">28°/21°</span>
-                    <span class="day-rain">15%</span>
+                    <span class="forecast-icon">⛅</span>
+                    <span class="forecast-temp">28° / 21°</span>
+                    <span class="rain-text">15% rain</span>
                 </div>
-                <div class="forecast-day">
+                <div class="forecast-card">
                     <span class="day-name">Wed</span>
-                    <span class="day-icon">🌧️</span>
-                    <span class="day-temp">26°/20°</span>
-                    <span class="day-rain">70%</span>
+                    <span class="forecast-icon">🌧️</span>
+                    <span class="forecast-temp">26° / 20°</span>
+                    <span class="rain-text high">70% rain</span>
                 </div>
-                <div class="forecast-day">
+                <div class="forecast-card">
                     <span class="day-name">Thu</span>
-                    <span class="day-icon">🌤️</span>
-                    <span class="day-temp">27°/21°</span>
-                    <span class="day-rain">25%</span>
+                    <span class="forecast-icon">🌤️</span>
+                    <span class="forecast-temp">27° / 21°</span>
+                    <span class="rain-text">25% rain</span>
                 </div>
-                <div class="forecast-day">
+                <div class="forecast-card">
                     <span class="day-name">Fri</span>
-                    <span class="day-icon">☀️</span>
-                    <span class="day-temp">30°/23°</span>
-                    <span class="day-rain">5%</span>
+                    <span class="forecast-icon">☀️</span>
+                    <span class="forecast-temp">30° / 23°</span>
+                    <span class="rain-text">5% rain</span>
                 </div>
-                <div class="forecast-day">
+                <div class="forecast-card">
                     <span class="day-name">Sat</span>
-                    <span class="day-icon">☀️</span>
-                    <span class="day-temp">31°/24°</span>
-                    <span class="day-rain">5%</span>
+                    <span class="forecast-icon">☀️</span>
+                    <span class="forecast-temp">31° / 24°</span>
+                    <span class="rain-text">5% rain</span>
                 </div>
-                <div class="forecast-day">
+                <div class="forecast-card">
                     <span class="day-name">Sun</span>
-                    <span class="day-icon">⛅</span>
-                    <span class="day-temp">29°/23°</span>
-                    <span class="day-rain">20%</span>
+                    <span class="forecast-icon">⛅</span>
+                    <span class="forecast-temp">29° / 23°</span>
+                    <span class="rain-text">20% rain</span>
                 </div>
             </div>
         </div>
     </div>
 
-    {% include 'chatbot_interface.html' %}
+    <!-- Collapsible Chatbot Assistant -->
+    <div class="chatbot-sidebar" id="chatbotSidebar">
+        <button type="button" class="chatbot-toggle" id="chatbotToggle">
+            <svg class="icon-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            <svg class="icon-collapse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="18" y1="6" x2="6" y2="18" stroke-width="2"></line>
+                <line x1="6" y1="6" x2="18" y2="18" stroke-width="2"></line>
+            </svg>
+            <span class="toggle-text">Rain Assistant</span>
+        </button>
+        
+        <div class="chatbot-content">
+            {% include 'chatbot_interface.html' %}
+        </div>
+    </div>
 </div>
 
 <style>
-.forecaster-content {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    margin-bottom: 2rem;
+:root {
+    --accent-color: #6366f1;
+    --accent-light: #818cf8;
+    --accent-dark: #4f46e5;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-elevated: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-tertiary: #94a3b8;
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.search-location-card, .current-weather-card, .forecast-card {
-    background: var(--bg-elevated);
-    border-radius: 16px;
+body.dark-mode {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-elevated: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-tertiary: #94a3b8;
+    --border-color: #334155;
+}
+
+.forecaster-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 0;
+    min-height: calc(100vh - 80px);
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+.weather-section {
     padding: 2rem;
-    box-shadow: var(--shadow-md);
+    overflow-y: auto;
+    background-color: var(--bg-secondary);
+}
+
+/* Search Card */
+.search-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
 }
 
-.search-location-card h2, .current-weather-card h2, .forecast-card h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-    color: var(--text-primary);
+body.dark-mode .search-card {
+    background: var(--bg-elevated);
 }
 
-.location-search {
-    display: flex;
-    gap: 1rem;
+.search-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
 }
 
-.location-input {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    background: var(--bg-secondary);
-    color: var(--text-primary);
+.search-header p {
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem 0;
     font-size: 0.95rem;
 }
 
-.location-input:focus {
-    outline: none;
-    border-color: var(--accent-color);
+/* Search Box - THE MISSING PART */
+.search-box {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    background-color: var(--bg-secondary);
+    border-radius: 14px;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    transition: all var(--transition-smooth);
 }
 
-.btn-search {
+body.dark-mode .search-box {
+    background-color: rgba(15, 23, 42, 0.6);
+    border-color: rgba(148, 163, 184, 0.2);
+}
+
+.search-box:focus-within {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.search-icon {
+    width: 22px;
+    height: 22px;
+    stroke: var(--accent-color);
+    flex-shrink: 0;
+}
+
+.city-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.5rem;
+    font-size: 1rem;
+    color: var(--text-primary);
+    outline: none;
+    min-width: 200px;
+}
+
+.city-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.search-btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -168,115 +304,414 @@
     border: none;
     border-radius: 10px;
     font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-smooth);
+    white-space: nowrap;
 }
 
-.btn-search:hover {
+.search-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
 }
 
-.current-weather {
+.search-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Current Weather Card */
+.current-weather-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .current-weather-card {
+    background: var(--bg-elevated);
+}
+
+.weather-header {
     display: flex;
-    flex-direction: column;
-    gap: 2rem;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.location-info h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+}
+
+.location-info p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.refresh-btn {
+    width: 44px;
+    height: 44px;
+    border: none;
+    background-color: var(--bg-secondary);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+}
+
+.refresh-btn:hover {
+    background-color: var(--accent-color);
+    transform: rotate(90deg);
+}
+
+.refresh-btn:hover svg {
+    stroke: white;
+}
+
+.refresh-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--text-secondary);
 }
 
 .weather-main {
     display: flex;
     align-items: center;
     gap: 2rem;
+    margin-bottom: 2rem;
 }
 
-.weather-icon {
-    font-size: 5rem;
+.weather-icon-large {
+    font-size: 6rem;
+    line-height: 1;
 }
 
-.weather-temp {
+.temperature {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1;
+}
+
+.weather-description {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0.5rem 0;
+}
+
+.feels-like {
+    font-size: 0.95rem;
+    color: var(--text-tertiary);
+}
+
+.feels-like span {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Weather Details Grid */
+.weather-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.weather-detail-card {
+    background-color: var(--bg-secondary);
+    border-radius: 14px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all var(--transition-smooth);
+}
+
+body.dark-mode .weather-detail-card {
+    background-color: rgba(15, 23, 42, 0.4);
+}
+
+.weather-detail-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.detail-icon {
+    font-size: 2rem;
+}
+
+.detail-info {
     display: flex;
     flex-direction: column;
 }
 
-.temp-value {
-    font-size: 3rem;
+.detail-label {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    margin-bottom: 0.25rem;
+}
+
+.detail-value {
+    font-size: 1.15rem;
     font-weight: 700;
     color: var(--text-primary);
 }
 
-.temp-feels {
-    color: var(--text-secondary);
-    font-size: 1rem;
+/* Forecast Section */
+.forecast-section {
+    margin-top: 2rem;
 }
 
-.weather-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-}
-
-.weather-detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1rem;
-    background: var(--bg-secondary);
-    border-radius: 10px;
-}
-
-.detail-label {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.detail-value {
-    color: var(--text-primary);
+.section-title {
     font-size: 1.25rem;
-    font-weight: 600;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem 0;
 }
 
-.forecast-days {
+.forecast-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: 1rem;
 }
 
-.forecast-day {
+.forecast-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
-    padding: 1.25rem;
-    background: var(--bg-secondary);
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
-    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-smooth);
+    cursor: pointer;
 }
 
-.forecast-day:hover {
-    border-color: var(--accent-color);
-    transform: translateY(-4px);
+body.dark-mode .forecast-card {
+    background: var(--bg-elevated);
+}
+
+.forecast-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
 }
 
 .day-name {
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 0.95rem;
     color: var(--text-primary);
 }
 
-.day-icon {
-    font-size: 2rem;
+.forecast-icon {
+    font-size: 2.5rem;
 }
 
-.day-temp {
-    color: var(--text-primary);
+.forecast-temp {
     font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
 }
 
-.day-rain {
+.rain-text {
+    font-size: 0.85rem;
     color: var(--accent-color);
-    font-size: 0.9rem;
+}
+
+.rain-text.high {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* Chatbot Sidebar */
+.chatbot-sidebar {
+    background-color: var(--bg-elevated);
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: all var(--transition-smooth);
+    position: relative;
+    overflow: hidden;
+}
+
+.chatbot-sidebar.collapsed {
+    width: 60px;
+}
+
+.chatbot-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.chatbot-toggle:hover {
+    background: linear-gradient(135deg, var(--accent-light), var(--accent-dark));
+}
+
+.chatbot-toggle svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+    flex-shrink: 0;
+}
+
+.icon-collapse {
+    display: none;
+}
+
+.chatbot-sidebar.collapsed .icon-expand {
+    display: none;
+}
+
+.chatbot-sidebar.collapsed .icon-collapse {
+    display: block;
+}
+
+.chatbot-sidebar.collapsed .toggle-text {
+    display: none;
+}
+
+.chatbot-content {
+    flex: 1;
+    overflow: hidden;
+    transition: opacity var(--transition-smooth);
+}
+
+.chatbot-sidebar.collapsed .chatbot-content {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.chatbot-sidebar .chatbot-wrapper {
+    padding: 0;
+    max-width: 100%;
+}
+
+.chatbot-sidebar .chatbot-container {
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .forecaster-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .chatbot-sidebar {
+        position: fixed;
+        right: -400px;
+        top: 80px;
+        bottom: 0;
+        width: 400px;
+        z-index: 1000;
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .chatbot-sidebar.expanded {
+        right: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .weather-section {
+        padding: 1rem;
+    }
+
+    .weather-main {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .weather-details-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .forecast-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    }
+
+    .chatbot-sidebar {
+        width: 100%;
+        right: -100%;
+    }
+
+    .search-box {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .city-input {
+        min-width: 100%;
+    }
 }
 </style>
-{% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🌦️ Weather Forecaster loaded');
+    
+    // Chatbot toggle
+    const chatbotToggle = document.getElementById('chatbotToggle');
+    const chatbotSidebar = document.getElementById('chatbotSidebar');
+    
+    chatbotToggle.addEventListener('click', function() {
+        chatbotSidebar.classList.toggle('collapsed');
+        if (window.innerWidth <= 1200) {
+            chatbotSidebar.classList.toggle('expanded');
+        }
+    });
+    
+    // Search functionality
+    const searchBtn = document.getElementById('searchBtn');
+    const cityInput = document.getElementById('cityInput');
+    
+    searchBtn.addEventListener('click', function() {
+        const city = cityInput.value.trim();
+        console.log('🔍 Searching:', city);
+        document.getElementById('cityName').textContent = city;
+        alert(`Weather for "${city}" - Connect weather API here!`);
+    });
+    
+    cityInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchBtn.click();
+        }
+    });
+    
+    // Refresh button
+    const refreshBtn = document.getElementById('refreshBtn');
+    refreshBtn.addEventListener('click', function() {
+        refreshBtn.style.transform = 'rotate(360deg)';
+        setTimeout(() => refreshBtn.style.transform = '', 600);
+    });
+    
+    // Update date
+    const date = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('currentDate').textContent = date.toLocaleDateString('en-US', options);
+});
+</script>
 </body>
-</html>
+{% endblock %}

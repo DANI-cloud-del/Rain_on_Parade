@@ -144,7 +144,7 @@ body {
     overflow: hidden;
 }
 
-.nav-link::before {
+/* .nav-link::before {
     content: attr(data-text);
     position: absolute;
     top: 0;
@@ -161,7 +161,7 @@ body {
     background-clip: text;
     opacity: 0;
     transition: opacity var(--transition-fast);
-}
+} */
 
 .nav-link:hover {
     background-color: var(--bg-secondary);

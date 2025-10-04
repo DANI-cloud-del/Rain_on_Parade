@@ -1,3 +1,4 @@
+
 <div class="chatbot-wrapper">
     <div class="chatbot-container">
         <!-- Chat Header -->
@@ -18,7 +19,7 @@
                 </div>
             </div>
             <div class="chat-header-right">
-                <button class="header-btn" id="clearChatBtn" aria-label="Clear chat">
+                <button type="button" class="header-btn" id="clearChatBtn" aria-label="Clear chat">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <polyline points="3 6 5 6 21 6" stroke-width="2"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-width="2"></path>
@@ -42,7 +43,7 @@
                         <p>👋 Hello! I'm your Rain Assistant. I can help you plan events, check weather forecasts, and navigate through the app. How can I assist you today?</p>
                     </div>
                     <div class="message-actions">
-                        <button class="action-btn speak-btn" data-message="Hello! I'm your Rain Assistant. I can help you plan events, check weather forecasts, and navigate through the app. How can I assist you today?">
+                        <button type="button" class="action-btn speak-btn" data-message="Hello! I'm your Rain Assistant. I can help you plan events, check weather forecasts, and navigate through the app. How can I assist you today?">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" stroke-width="2"></polygon>
                                 <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke-width="2"></path>
@@ -55,7 +56,7 @@
 
             <!-- Quick Actions -->
             <div class="quick-actions" id="quickActions">
-                <button class="quick-action-btn" data-action="scheduler">
+                <button type="button" class="quick-action-btn" data-action="scheduler">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2"></rect>
                         <line x1="16" y1="2" x2="16" y2="6" stroke-width="2"></line>
@@ -64,13 +65,13 @@
                     </svg>
                     <span>Go to Scheduler</span>
                 </button>
-                <button class="quick-action-btn" data-action="forecaster">
+                <button type="button" class="quick-action-btn" data-action="forecaster">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" stroke-width="2"></path>
                     </svg>
                     <span>Check Weather</span>
                 </button>
-                <button class="quick-action-btn" data-action="help">
+                <button type="button" class="quick-action-btn" data-action="help">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke-width="2"></path>
@@ -98,7 +99,7 @@
         <!-- Chat Input Area -->
         <div class="chat-input-area">
             <div class="input-container" id="inputContainer">
-                <button class="input-btn voice-btn" id="voiceBtn" aria-label="Voice input">
+                <button type="button" class="input-btn voice-btn" id="voiceBtn" aria-label="Voice input">
                     <svg class="mic-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" stroke-width="2"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" stroke-width="2"></path>
@@ -123,7 +124,7 @@
                     <div class="input-glow"></div>
                 </div>
 
-                <button class="input-btn send-btn" id="sendBtn" aria-label="Send message">
+                <button type="button" class="input-btn send-btn" id="sendBtn" aria-label="Send message">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <line x1="22" y1="2" x2="11" y2="13" stroke-width="2"></line>
                         <polygon points="22 2 15 22 11 13 2 9 22 2" stroke-width="2"></polygon>
@@ -795,116 +796,163 @@
 </style>
 
 <script>
-// Chatbot Functionality with LocalStorage Persistence
-const chatMessages = document.getElementById('chatMessages');
-const chatInput = document.getElementById('chatInput');
-const sendBtn = document.getElementById('sendBtn');
-const voiceBtn = document.getElementById('voiceBtn');
-const clearChatBtn = document.getElementById('clearChatBtn');
-const typingIndicator = document.getElementById('typingIndicator');
-const voiceVisualization = document.getElementById('voiceVisualization');
+// Wait for DOM to be fully loaded before running any code
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('╔════════════════════════════════════════╗');
+    console.log('║   CHATBOT SCRIPT LOADING START        ║');
+    console.log('╚════════════════════════════════════════╝');
+    console.log('⏰ Time:', new Date().toLocaleTimeString());
+    console.log('📄 Page:', window.location.pathname);
 
-// Generate unique session ID
-const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    // Prevent multiple script loads
+    if (window.chatbotScriptLoaded) {
+        console.error('❌ ERROR: Chatbot script already loaded!');
+        return;
+    }
+    window.chatbotScriptLoaded = true;
 
-// Get current page context
-const currentPage = document.body.dataset.page || 'home';
+    // ============================================
+    // GET DOM ELEMENTS
+    // ============================================
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const clearChatBtn = document.getElementById('clearChatBtn');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const voiceVisualization = document.getElementById('voiceVisualization');
 
-let isRecording = false;
-let isSpeaking = false;
-let currentRecognition = null;
-let autoSpeakEnabled = true;
+    // Check if all elements exist
+    console.log('🔍 DOM Elements Check:');
+    console.log('  chatMessages:', chatMessages ? '✓' : '❌ NULL');
+    console.log('  chatInput:', chatInput ? '✓' : '❌ NULL');
+    console.log('  sendBtn:', sendBtn ? '✓' : '❌ NULL');
+    console.log('  voiceBtn:', voiceBtn ? '✓' : '❌ NULL');
+    console.log('  clearChatBtn:', clearChatBtn ? '✓' : '❌ NULL');
 
-// LocalStorage key for chat history
-const CHAT_HISTORY_KEY = 'rain_assistant_chat_history';
+    if (!chatMessages || !chatInput || !sendBtn || !voiceBtn || !clearChatBtn) {
+        console.error('❌ CRITICAL ERROR: Required DOM elements not found!');
+        return;
+    }
 
-// Load chat history from localStorage on page load
-function loadChatHistory() {
-    try {
-        const savedHistory = localStorage.getItem(CHAT_HISTORY_KEY);
-        if (savedHistory) {
-            const messages = JSON.parse(savedHistory);
+    // ============================================
+    // STATE VARIABLES
+    // ============================================
+    const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const currentPage = document.body.dataset.page || 'home';
+
+    let isRecording = false;
+    let isSpeaking = false;
+    let currentRecognition = null;
+    let autoSpeakEnabled = true;
+    let messageCount = 0;
+
+    const CHAT_HISTORY_KEY = 'rain_assistant_chat_history';
+
+    console.log('✓ Session initialized:', { sessionId, currentPage });
+
+    // ============================================
+    // LOCALSTORAGE FUNCTIONS
+    // ============================================
+    function loadChatHistory() {
+        console.log('📂 Loading chat history from localStorage...');
+        try {
+            const savedHistory = localStorage.getItem(CHAT_HISTORY_KEY);
+            if (savedHistory) {
+                const messages = JSON.parse(savedHistory);
+                console.log(`✓ Found ${messages.length} saved messages`);
+                
+                chatMessages.innerHTML = '';
+                
+                messages.forEach((msg, index) => {
+                    console.log(`  ↳ Restoring message ${index + 1}:`, msg.sender);
+                    addMessageToUI(msg.text, msg.sender, msg.time, false);
+                });
+                
+                scrollToBottom();
+            } else {
+                console.log('ℹ️ No saved chat history found');
+            }
+        } catch (error) {
+            console.error('❌ Error loading chat history:', error);
+        }
+    }
+
+    function saveChatHistory() {
+        console.log('💾 Saving chat history to localStorage...');
+        try {
+            const messages = [];
+            const messageElements = chatMessages.querySelectorAll('.message-wrapper');
             
-            // Clear existing messages except welcome message
-            chatMessages.innerHTML = '';
-            
-            // Restore each message
-            messages.forEach(msg => {
-                addMessageToUI(msg.text, msg.sender, msg.time, false); // false = don't save again
+            messageElements.forEach((element, index) => {
+                const sender = element.classList.contains('bot-message') ? 'bot' : 'user';
+                const text = element.querySelector('.message-bubble p').textContent;
+                const time = element.querySelector('.message-time').textContent;
+                
+                messages.push({ sender, text, time });
             });
             
-            scrollToBottom();
-            console.log('Chat history loaded:', messages.length, 'messages');
+            localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(messages));
+            console.log(`✓ Saved ${messages.length} messages to localStorage`);
+        } catch (error) {
+            console.error('❌ Error saving chat history:', error);
         }
-    } catch (error) {
-        console.error('Error loading chat history:', error);
     }
-}
 
-// Save chat history to localStorage
-function saveChatHistory() {
-    try {
-        const messages = [];
-        const messageElements = chatMessages.querySelectorAll('.message-wrapper');
+    // ============================================
+    // MESSAGE FUNCTIONS
+    // ============================================
+    async function sendMessage() {
+        messageCount++;
+        console.log(`\n╔════════════════════════════════════════╗`);
+        console.log(`║   SENDING MESSAGE #${messageCount}               ║`);
+        console.log(`╚════════════════════════════════════════╝`);
         
-        messageElements.forEach(element => {
-            const sender = element.classList.contains('bot-message') ? 'bot' : 'user';
-            const text = element.querySelector('.message-bubble p').textContent;
-            const time = element.querySelector('.message-time').textContent;
-            
-            messages.push({ sender, text, time });
-        });
+        const message = chatInput.value.trim();
         
-        localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(messages));
-        console.log('Chat history saved:', messages.length, 'messages');
-    } catch (error) {
-        console.error('Error saving chat history:', error);
-    }
-}
+        if (!message) {
+            console.log('⚠️ Empty message, skipping send');
+            return;
+        }
+        
+        console.log('📤 User message:', message);
 
-// Send Message Function
-async function sendMessage() {
-    const message = chatInput.value.trim();
-    if (!message) return;
+        addMessage(message, 'user');
+        chatInput.value = '';
+        console.log('✓ Added user message to UI');
+        
+        showTypingIndicator();
 
-    addMessage(message, 'user');
-    chatInput.value = '';
-    showTypingIndicator();
-
-    try {
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: message,
-                session_id: sessionId,
-                current_page: currentPage
-            })
-        });
-
-        const data = await response.json();
-        hideTypingIndicator();
-
-        if (data.success) {
-            addMessage(data.response, 'bot');
+        try {
+            console.log('🌐 Sending API request to /api/chat...');
             
-            // AUTO-SPEAK: Automatically speak the bot's response
-            if (autoSpeakEnabled) {
-                speakText(data.response);
-            }
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: message,
+                    session_id: sessionId,
+                    current_page: currentPage
+                })
+            });
+
+            console.log('📡 Response status:', response.status);
+            const data = await response.json();
+            console.log('📥 Response data:', data);
             
-            // Handle navigation
-            if (data.navigate_to) {
-                const navigationMessages = {
-                    'home': 'Taking you to the home page...',
-                    'scheduler': 'Opening the Event Scheduler...',
-                    'forecaster': 'Loading the Weather Forecaster...'
-                };
+            hideTypingIndicator();
+
+            if (data.success) {
+                console.log('✓ Bot response:', data.response);
+                addMessage(data.response, 'bot');
                 
-                const navMessage = navigationMessages[data.navigate_to] || 'Navigating...';
-                console.log(navMessage);
+                if (autoSpeakEnabled) {
+                    console.log('🔊 Auto-speaking response...');
+                    speakText(data.response);
+                }
                 
-                setTimeout(() => {
+                if (data.navigate_to) {
+                    console.log('🧭 Navigation requested to:', data.navigate_to);
                     const navigationMap = {
                         'home': '/',
                         'scheduler': '/scheduler',
@@ -914,300 +962,351 @@ async function sendMessage() {
                     const targetPath = navigationMap[data.navigate_to];
                     
                     if (targetPath) {
-                        window.location.href = targetPath;
-                    } else {
-                        console.error('Unknown navigation target:', data.navigate_to);
+                        console.log(`⏱️ Navigating to ${targetPath} in 2 seconds...`);
+                        setTimeout(() => {
+                            console.log('🚀 Navigating now!');
+                            window.location.href = targetPath;
+                        }, 2000);
                     }
-                }, 2000);
-            }
-        } else {
-            addMessage('Sorry, I encountered an error. Please try again.', 'bot');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        hideTypingIndicator();
-        addMessage('Sorry, I could not connect to the server.', 'bot');
-    }
-}
-
-// Add Message (wrapper that saves to localStorage)
-function addMessage(text, sender) {
-    const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    addMessageToUI(text, sender, time, true); // true = save to localStorage
-}
-
-// Add Message to UI (with optional save)
-function addMessageToUI(text, sender, time, shouldSave = true) {
-    const messageWrapper = document.createElement('div');
-    messageWrapper.className = `message-wrapper ${sender}-message`;
-
-    messageWrapper.innerHTML = `
-        <div class="message-avatar">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                ${sender === 'bot' ? 
-                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 17l10 5 10-5M2 12l10 5 10-5"/>' :
-                    '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke-width="2"></path><circle cx="12" cy="7" r="4" stroke-width="2"></circle>'
                 }
-            </svg>
-        </div>
-        <div class="message-content">
-            <div class="message-bubble">
-                <p>${escapeHtml(text)}</p>
-            </div>
-            <div class="message-actions">
-                ${sender === 'bot' ? `
-                    <button class="action-btn speak-btn" data-message="${escapeHtml(text)}">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" stroke-width="2"></polygon>
-                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke-width="2"></path>
-                        </svg>
-                    </button>
-                ` : ''}
-                <span class="message-time">${time}</span>
-            </div>
-        </div>
-    `;
-
-    // Remove quick actions on first user message
-    const quickActions = document.getElementById('quickActions');
-    if (quickActions && sender === 'user') {
-        quickActions.remove();
-    }
-
-    chatMessages.appendChild(messageWrapper);
-    scrollToBottom();
-
-    // Add speak button functionality
-    if (sender === 'bot') {
-        const speakBtn = messageWrapper.querySelector('.speak-btn');
-        if (speakBtn) {
-            speakBtn.addEventListener('click', () => speakText(speakBtn.dataset.message, speakBtn));
-        }
-    }
-
-    // Save to localStorage if requested
-    if (shouldSave) {
-        saveChatHistory();
-    }
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// Enhanced Text-to-Speech with English Voice
-function speakText(text, button) {
-    if (isSpeaking) {
-        window.speechSynthesis.cancel();
-        if (button) button.classList.remove('speaking');
-        isSpeaking = false;
-        return;
-    }
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.95;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-    
-    const voices = window.speechSynthesis.getVoices();
-    const englishVoice = voices.find(voice => 
-        (voice.lang === 'en-US' || voice.lang === 'en-GB') && 
-        (voice.name.includes('Google') || voice.name.includes('Microsoft'))
-    ) || voices.find(voice => voice.lang.startsWith('en'));
-    
-    if (englishVoice) {
-        utterance.voice = englishVoice;
-    }
-    
-    utterance.onstart = () => {
-        isSpeaking = true;
-        if (button) button.classList.add('speaking');
-    };
-    
-    utterance.onend = () => {
-        isSpeaking = false;
-        if (button) button.classList.remove('speaking');
-    };
-
-    utterance.onerror = () => {
-        isSpeaking = false;
-        if (button) button.classList.remove('speaking');
-    };
-
-    window.speechSynthesis.cancel();
-    setTimeout(() => {
-        window.speechSynthesis.speak(utterance);
-    }, 100);
-}
-
-// Load voices
-if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-    };
-}
-
-// Voice Input
-function toggleVoiceInput() {
-    if (!isRecording) {
-        startVoiceRecording();
-    } else {
-        stopVoiceRecording();
-    }
-}
-
-function startVoiceRecording() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        alert('Speech recognition not supported. Please use Chrome, Edge, or Safari.');
-        return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    currentRecognition = new SpeechRecognition();
-    currentRecognition.continuous = false;
-    currentRecognition.interimResults = false;
-    currentRecognition.lang = 'en-US';
-
-    currentRecognition.onstart = () => {
-        isRecording = true;
-        voiceBtn.classList.add('active');
-        voiceVisualization.classList.add('active');
-    };
-
-    currentRecognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        chatInput.value = transcript;
-        chatInput.focus();
-    };
-
-    currentRecognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        stopVoiceRecording();
-    };
-
-    currentRecognition.onend = () => {
-        stopVoiceRecording();
-    };
-
-    try {
-        currentRecognition.start();
-    } catch (error) {
-        console.error('Error starting recognition:', error);
-        stopVoiceRecording();
-    }
-}
-
-function stopVoiceRecording() {
-    isRecording = false;
-    voiceBtn.classList.remove('active');
-    voiceVisualization.classList.remove('active');
-    
-    if (currentRecognition) {
-        currentRecognition.stop();
-        currentRecognition = null;
-    }
-}
-
-function showTypingIndicator() {
-    typingIndicator.classList.add('active');
-    scrollToBottom();
-}
-
-function hideTypingIndicator() {
-    typingIndicator.classList.remove('active');
-}
-
-function scrollToBottom() {
-    setTimeout(() => {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }, 100);
-}
-
-// Clear Chat with localStorage clearing
-async function clearChat() {
-    if (confirm('Clear chat history? This will remove all messages.')) {
-        try {
-            // Clear backend conversation history
-            await fetch('/api/clear-chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ session_id: sessionId })
-            });
-
-            // Clear localStorage
-            localStorage.removeItem(CHAT_HISTORY_KEY);
-            
-            // Reset UI with welcome message
-            chatMessages.innerHTML = `
-                <div class="message-wrapper bot-message">
-                    <div class="message-avatar">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
-                        </svg>
-                    </div>
-                    <div class="message-content">
-                        <div class="message-bubble">
-                            <p>👋 Chat cleared! How can I assist you?</p>
-                        </div>
-                        <div class="message-actions">
-                            <span class="message-time">Just now</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            console.log('Chat history cleared from localStorage');
+            } else {
+                console.error('❌ API returned error');
+                addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+            }
         } catch (error) {
-            console.error('Error clearing chat:', error);
+            console.error('❌ Fetch error:', error);
+            hideTypingIndicator();
+            addMessage('Sorry, I could not connect to the server.', 'bot');
+        }
+        
+        console.log('✓ Message send complete\n');
+    }
+
+    function addMessage(text, sender) {
+        const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        console.log(`  ➕ Adding ${sender} message:`, text.substring(0, 50) + '...');
+        addMessageToUI(text, sender, time, true);
+    }
+
+    function addMessageToUI(text, sender, time, shouldSave = true) {
+        const messageWrapper = document.createElement('div');
+        messageWrapper.className = `message-wrapper ${sender}-message`;
+
+        messageWrapper.innerHTML = `
+            <div class="message-avatar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    ${sender === 'bot' ? 
+                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 17l10 5 10-5M2 12l10 5 10-5"/>' :
+                        '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke-width="2"></path><circle cx="12" cy="7" r="4" stroke-width="2"></circle>'
+                    }
+                </svg>
+            </div>
+            <div class="message-content">
+                <div class="message-bubble">
+                    <p>${escapeHtml(text)}</p>
+                </div>
+                <div class="message-actions">
+                    ${sender === 'bot' ? `
+                        <button type="button" class="action-btn speak-btn" data-message="${escapeHtml(text)}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" stroke-width="2"></polygon>
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke-width="2"></path>
+                            </svg>
+                        </button>
+                    ` : ''}
+                    <span class="message-time">${time}</span>
+                </div>
+            </div>
+        `;
+
+        const quickActions = document.getElementById('quickActions');
+        if (quickActions && sender === 'user') {
+            console.log('  ↳ Removing quick actions');
+            quickActions.remove();
+        }
+
+        chatMessages.appendChild(messageWrapper);
+        scrollToBottom();
+
+        if (sender === 'bot') {
+            const speakBtn = messageWrapper.querySelector('.speak-btn');
+            if (speakBtn) {
+                speakBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔊 Manual speak button clicked');
+                    speakText(speakBtn.dataset.message, speakBtn);
+                });
+            }
+        }
+
+        if (shouldSave) {
+            saveChatHistory();
         }
     }
-}
 
-// Quick Actions
-document.addEventListener('click', async (e) => {
-    if (e.target.closest('.quick-action-btn')) {
-        const action = e.target.closest('.quick-action-btn').dataset.action;
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ============================================
+    // TEXT-TO-SPEECH
+    // ============================================
+    function speakText(text, button) {
+        console.log('🎤 speakText called');
         
-        const messages = {
-            'scheduler': "Take me to the scheduler page",
-            'forecaster': "Show me the weather forecast",
-            'help': "How do I use this app?"
+        if (isSpeaking) {
+            console.log('  ↳ Stopping current speech');
+            window.speechSynthesis.cancel();
+            if (button) button.classList.remove('speaking');
+            isSpeaking = false;
+            return;
+        }
+
+        console.log('  ↳ Starting speech:', text.substring(0, 50) + '...');
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.95;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        
+        const voices = window.speechSynthesis.getVoices();
+        const englishVoice = voices.find(voice => 
+            (voice.lang === 'en-US' || voice.lang === 'en-GB') && 
+            (voice.name.includes('Google') || voice.name.includes('Microsoft'))
+        ) || voices.find(voice => voice.lang.startsWith('en'));
+        
+        if (englishVoice) {
+            utterance.voice = englishVoice;
+            console.log('  ↳ Using voice:', englishVoice.name);
+        }
+        
+        utterance.onstart = () => {
+            console.log('  ↳ Speech started');
+            isSpeaking = true;
+            if (button) button.classList.add('speaking');
         };
         
-        if (messages[action]) {
-            chatInput.value = messages[action];
-            sendMessage();
+        utterance.onend = () => {
+            console.log('  ↳ Speech ended');
+            isSpeaking = false;
+            if (button) button.classList.remove('speaking');
+        };
+
+        utterance.onerror = (e) => {
+            console.error('  ↳ Speech error:', e);
+            isSpeaking = false;
+            if (button) button.classList.remove('speaking');
+        };
+
+        window.speechSynthesis.cancel();
+        setTimeout(() => {
+            window.speechSynthesis.speak(utterance);
+        }, 100);
+    }
+
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = () => {
+            const voices = window.speechSynthesis.getVoices();
+            console.log(`🗣️ Loaded ${voices.length} voices`);
+        };
+    }
+
+    // ============================================
+    // VOICE INPUT
+    // ============================================
+    function toggleVoiceInput() {
+        console.log('🎙️ toggleVoiceInput called');
+        if (!isRecording) {
+            startVoiceRecording();
+        } else {
+            stopVoiceRecording();
         }
     }
-});
 
-// Event Listeners
-sendBtn.addEventListener('click', sendMessage);
-voiceBtn.addEventListener('click', toggleVoiceInput);
-clearChatBtn.addEventListener('click', clearChat);
+    function startVoiceRecording() {
+        console.log('  ↳ Starting voice recording...');
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert('Speech recognition not supported.');
+            return;
+        }
 
-chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        currentRecognition = new SpeechRecognition();
+        currentRecognition.continuous = false;
+        currentRecognition.interimResults = false;
+        currentRecognition.lang = 'en-US';
+
+        currentRecognition.onstart = () => {
+            console.log('  ↳ Voice recording started');
+            isRecording = true;
+            voiceBtn.classList.add('active');
+            voiceVisualization.classList.add('active');
+        };
+
+        currentRecognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            console.log('  ↳ Voice transcription:', transcript);
+            chatInput.value = transcript;
+            chatInput.focus();
+        };
+
+        currentRecognition.onerror = (event) => {
+            console.error('  ↳ Voice recognition error:', event.error);
+            stopVoiceRecording();
+        };
+
+        currentRecognition.onend = () => {
+            console.log('  ↳ Voice recording ended');
+            stopVoiceRecording();
+        };
+
+        try {
+            currentRecognition.start();
+        } catch (error) {
+            console.error('  ↳ Error starting recognition:', error);
+            stopVoiceRecording();
+        }
     }
-});
 
-// Initialize: Load chat history on page load
-window.addEventListener('DOMContentLoaded', () => {
+    function stopVoiceRecording() {
+        isRecording = false;
+        voiceBtn.classList.remove('active');
+        voiceVisualization.classList.remove('active');
+        
+        if (currentRecognition) {
+            currentRecognition.stop();
+            currentRecognition = null;
+        }
+    }
+
+    // ============================================
+    // UI FUNCTIONS
+    // ============================================
+    function showTypingIndicator() {
+        console.log('⌛ Showing typing indicator');
+        typingIndicator.classList.add('active');
+        scrollToBottom();
+    }
+
+    function hideTypingIndicator() {
+        console.log('✓ Hiding typing indicator');
+        typingIndicator.classList.remove('active');
+    }
+
+    function scrollToBottom() {
+        setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 100);
+    }
+
+    async function clearChat() {
+        console.log('🗑️ clearChat called');
+        if (confirm('Clear chat history?')) {
+            try {
+                await fetch('/api/clear-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId })
+                });
+
+                localStorage.removeItem(CHAT_HISTORY_KEY);
+                
+                chatMessages.innerHTML = `
+                    <div class="message-wrapper bot-message">
+                        <div class="message-avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                <p>👋 Chat cleared! How can I assist you?</p>
+                            </div>
+                            <div class="message-actions">
+                                <span class="message-time">Just now</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                console.log('✓ Chat cleared');
+            } catch (error) {
+                console.error('❌ Error clearing chat:', error);
+            }
+        }
+    }
+
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
+    console.log('🔗 Attaching event listeners...');
+
+    sendBtn.addEventListener('click', function(e) {
+        console.log('🖱️ Send button clicked');
+        e.preventDefault();
+        e.stopPropagation();
+        sendMessage();
+    });
+
+    voiceBtn.addEventListener('click', function(e) {
+        console.log('🖱️ Voice button clicked');
+        e.preventDefault();
+        e.stopPropagation();
+        toggleVoiceInput();
+    });
+
+    clearChatBtn.addEventListener('click', function(e) {
+        console.log('🖱️ Clear button clicked');
+        e.preventDefault();
+        e.stopPropagation();
+        clearChat();
+    });
+
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            console.log('⌨️ Enter key pressed');
+            e.preventDefault();
+            e.stopPropagation();
+            sendMessage();
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        const quickActionBtn = e.target.closest('.quick-action-btn');
+        if (quickActionBtn) {
+            console.log('🖱️ Quick action clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const action = quickActionBtn.dataset.action;
+            const messages = {
+                'scheduler': "Take me to the scheduler page",
+                'forecaster': "Show me the weather forecast",
+                'help': "How do I use this app?"
+            };
+            
+            if (messages[action]) {
+                chatInput.value = messages[action];
+                sendMessage();
+            }
+        }
+    });
+
+    console.log('✓ Event listeners attached');
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    console.log('🚀 Initializing chatbot...');
     loadChatHistory();
     chatInput.focus();
+    
+    console.log('╔════════════════════════════════════════╗');
+    console.log('║   CHATBOT READY                       ║');
+    console.log('╚════════════════════════════════════════╝\n');
 });
-
-// Also initialize if DOMContentLoaded already fired
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    loadChatHistory();
-    chatInput.focus();
-}
 </script>
-
-
