@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, session
 import os
 from groq import Groq
 from dotenv import load_dotenv
@@ -24,21 +24,30 @@ if os.path.exists('weather_model.pkl'):
     weather_predictor.load_model()
     print("✅ Weather prediction model loaded in chatbot")
 
+# ✅ SERVER-SIDE CONVERSATION STORAGE (IN-MEMORY)
+conversation_sessions = {}
 
 def register_chatbot_routes(app):
     """Register chatbot routes with the Flask app"""
     
+    # Enable sessions
+    app.secret_key = os.environ.get("SECRET_KEY", "rain-on-parade-secret-key-2025")
+    
     @app.route('/api/chat', methods=['POST'])
     def chat():
         print("\n📨 Received chat request")
+        
         try:
             data = request.json
             user_message = data.get('message', '')
             session_id = data.get('session_id', 'default')
             current_page = data.get('current_page', 'home')
+            conversation_history = data.get('conversation_history', [])
             
             print(f"💬 User message: {user_message}")
+            print(f"🆔 Session ID: {session_id}")
             print(f"📄 Current page: {current_page}")
+            print(f"📚 Conversation history length: {len(conversation_history)}")
             
             if not user_message:
                 return jsonify({
@@ -46,14 +55,24 @@ def register_chatbot_routes(app):
                     'error': 'No message provided'
                 }), 400
             
+            # ✅ GET OR CREATE CONVERSATION HISTORY FOR THIS SESSION
+            if session_id not in conversation_sessions:
+                conversation_sessions[session_id] = []
+                print(f"🆕 Created new conversation session: {session_id}")
+            
+            # Use server-side history if frontend didn't send any
+            if not conversation_history:
+                conversation_history = conversation_sessions[session_id]
+                print(f"📥 Using server-side history: {len(conversation_history)} messages")
+            
             # Check if user is asking about weather prediction
             weather_keywords = ['rain', 'weather', 'forecast', 'predict', 'will it rain', 'precipitation', 'rainfall']
             is_weather_query = any(keyword in user_message.lower() for keyword in weather_keywords)
             
             weather_context = ""
-            
             if is_weather_query and weather_predictor.model is not None:
                 print("🌧️ Weather query detected")
+                
                 # Try to extract date and city from message
                 date_str = extract_date_from_message(user_message)
                 city = extract_city_from_message(user_message)
@@ -108,37 +127,109 @@ Use this data to give a natural, conversational response about the weather.
                 'content': 'No content available.'
             })
             
-            # Enhanced system prompt
-            system_prompt = f"""You are Rain Assistant, a helpful AI for the 'Rain on Parade' event planning app.
+            # Enhanced system prompt with TRIP PLANNING
+            # Enhanced system prompt - TTS OPTIMIZED & TABLE FORMATTED
+            system_prompt = f"""You are Rain Assistant, a friendly AI for the 'Rain on Parade' event planning app.
 
 {weather_context}
 
-CURRENT PAGE CONTEXT:
-- User is currently on: {page_info['name']}
-- Page Description: {page_info['description']}
-- Page Content: {page_info['content']}
+CURRENT PAGE: {page_info['name']} - {page_info['description']}
 
 YOUR CAPABILITIES:
-1. **WEATHER PREDICTION**: Predict rainfall for any date up to 1 year ahead using ML trained on NASA data
-2. Help users plan events and schedules
-3. Provide weather forecast information
-4. Navigate users to different pages
-5. Answer questions about the current page
+1. WEATHER PREDICTION: Predict rainfall using ML trained on NASA data
+2. TRIP PLANNING: Help plan weather-aware trips
+3. EVENT SCHEDULING: Assist with event planning
+4. NAVIGATION: Guide users through the app
 
-WEATHER PREDICTION INSTRUCTIONS:
-- When users ask "Will it rain on [date]?", use the WEATHER PREDICTION DATA above if available
-- If no date is mentioned, ask them to specify a date
-- You use Machine Learning trained on 10+ years of NASA weather data
-- Predictions are most accurate for 90 days ahead
+FORMATTING RULES - SIMPLE & CLEAN:
+- Write naturally as if speaking to a friend
+- Use numbered lists (1, 2, 3) for places and activities
+- Use CAPS LABELS for sections (like "WEATHER:" or "TOP PLACES:")
+- NO asterisks, NO bullets, NO markdown formatting
+- NO tables - just conversational text with clear sections
+- Keep responses flowing and easy to read aloud
 
-NAVIGATION INSTRUCTIONS:
-- When users want to go to Scheduler, respond with: "NAVIGATE:scheduler" at the end
-- When users want to go to Forecaster/Weather, respond with: "NAVIGATE:forecaster" at the end
-- When users want to go to Home, respond with: "NAVIGATE:home" at the end
+RESPONSE FORMAT FOR TRIP PLANNING:
+"Great choice! Here's what I'd suggest for [Destination]:
 
-Be friendly, conversational, and helpful. Keep responses concise (under 100 words) unless detailed information is requested.
-Since you have text-to-speech capabilities, speak naturally as if having a conversation."""
-            
+WEATHER: [Brief summary - temps, conditions, rain chance]
+
+TOP PLACES TO VISIT:
+1. [Place 1] - [One sentence why]
+2. [Place 2] - [One sentence why]
+3. [Place 3] - [One sentence why]
+
+ACTIVITIES: [List 3-5 activities in a natural sentence]
+
+WHAT TO PACK: [List 4-6 items in a flowing sentence]
+
+BEST TIMES: [When to visit attractions, written naturally]
+
+For a [X]-day trip, I'd recommend: Day 1 - [activities], Day 2 - [activities], Day 3 - [activities].
+
+Would you like more details about any specific place?"
+
+DESTINATION KNOWLEDGE:
+MUNNAR, KERALA (October):
+- Weather: 15-22°C, pleasant post-monsoon climate, light rainfall possible
+- Peak Season: October to February
+- Top Places: Eravikulam National Park (Nilgiri Tahr), Mattupetty Dam (boating), Top Station (sunrise views), Kolukkumalai Tea Estates, Echo Point, Tata Tea Museum
+- Activities: Trekking, tea plantation tours, tea tasting, boating, wildlife photography, nature walks
+- Pack: Trekking shoes, light jacket, raincoat, warm layers for evenings, camera, power bank
+- Duration: Minimum 3-4 days recommended
+- Best For: Honeymooners, nature lovers, photographers, adventure seekers
+
+WEATHER RESPONSE FORMAT:
+When users ask about weather for a specific date, respond like:
+"Great! Let me check the weather for [City] on [Date]. 
+
+FORECAST: [Summary of conditions]
+TEMPERATURE: [Range]
+RAIN CHANCE: [Percentage]
+RECOMMENDATION: [Whether it's good for outdoor activities]
+
+[If trip planning] Based on this forecast, [suggest activities or backup plans]."
+
+MEMORY RULES:
+- REMEMBER what the user told you (destination, dates, preferences)
+- Reference previous conversation naturally ("As we discussed earlier...")
+- Don't ask for info already provided
+- Build on previous responses
+
+WEATHER PREDICTION:
+- Use the WEATHER PREDICTION DATA above when available
+- If no date mentioned, ask politely: "Which date are you planning for?"
+- Always mention it's based on ML trained on NASA data
+- Give practical recommendations based on rain probability
+
+NAVIGATION COMMANDS (add at END of response):
+- To Scheduler: "NAVIGATE:scheduler"
+- To Forecaster: "NAVIGATE:forecaster"
+- To Home: "NAVIGATE:home"
+
+TONE: Friendly, enthusiastic, helpful - like a knowledgeable travel friend
+
+RESPONSE LENGTH: 100-200 words (150-250 for trip planning)
+
+EXAMPLE GOOD RESPONSE:
+"Munnar in October is absolutely perfect! The weather is beautiful with temperatures between 15-22°C, ideal for exploring.
+
+TOP PLACES TO VISIT:
+1. Eravikulam National Park - Home to the endangered Nilgiri Tahr, best visited early morning
+2. Mattupetty Dam - Perfect for scenic boat rides and photography
+3. Top Station - Breathtaking sunrise views of the valley
+
+ACTIVITIES: You can enjoy trekking through tea plantations, tea tasting sessions at local estates, boating at the dam, and wildlife photography.
+
+WHAT TO PACK: Bring comfortable trekking shoes, a light jacket for mornings, warm clothes for evenings, a raincoat just in case, and definitely your camera.
+
+For a 3-day trip: Day 1 - Arrive and explore tea plantations, Day 2 - Visit Eravikulam Park and Top Station for sunrise, Day 3 - Mattupetty Dam and local markets.
+
+Would you like specific recommendations for hotels or restaurants?"
+
+CRITICAL: You have full conversation history. Use it to maintain context."""
+
+
             print("🤖 Calling Groq API...")
             
             # Check if API key exists
@@ -149,18 +240,32 @@ Since you have text-to-speech capabilities, speak naturally as if having a conve
                     'error': 'API key not configured'
                 }), 500
             
+            # ✅ BUILD MESSAGES WITH FULL CONVERSATION HISTORY
+            messages = [
+                {
+                    "role": "system",
+                    "content": system_prompt
+                }
+            ]
+            
+            # Add conversation history
+            for msg in conversation_history:
+                messages.append({
+                    "role": msg.get("role", "user"),
+                    "content": msg.get("content", "")
+                })
+            
+            # Add current user message
+            messages.append({
+                "role": "user",
+                "content": user_message
+            })
+            
+            print(f"📨 Sending {len(messages)} messages to Groq (including history)")
+            
             # Call Groq API
             chat_completion = client.chat.completions.create(
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": user_message
-                    }
-                ],
+                messages=messages,
                 model="llama-3.1-8b-instant",
                 temperature=0.7,
                 max_tokens=500
@@ -169,24 +274,57 @@ Since you have text-to-speech capabilities, speak naturally as if having a conve
             bot_response = chat_completion.choices[0].message.content
             print(f"✅ Bot response: {bot_response[:100]}...")
             
-            # IMPORTANT: Parse navigation command from response
+            # ✅ SAVE TO SERVER-SIDE HISTORY
+            conversation_sessions[session_id].append({
+                "role": "user",
+                "content": user_message
+            })
+            conversation_sessions[session_id].append({
+                "role": "assistant",
+                "content": bot_response
+            })
+            
+            # Keep only last 20 messages (10 exchanges) to prevent memory overflow
+            if len(conversation_sessions[session_id]) > 20:
+                conversation_sessions[session_id] = conversation_sessions[session_id][-20:]
+            
+            print(f"💾 Saved to server history. Total messages: {len(conversation_sessions[session_id])}")
+            
+            # Parse navigation command from response
             navigate_to = None
+            forecast_city = None
+            forecast_date = None
+            
             if 'NAVIGATE:' in bot_response:
                 nav_match = re.search(r'NAVIGATE:(\w+)', bot_response)
                 if nav_match:
                     navigate_to = nav_match.group(1).lower()
+                    
+                    # If navigating to forecaster, extract city and date from user message
+                    if navigate_to == 'forecaster':
+                        forecast_city = extract_city_from_message(user_message)
+                        forecast_date = extract_date_from_message(user_message)
+                    
                     # Remove NAVIGATE command from response
                     bot_response = re.sub(r'\s*NAVIGATE:\w+\s*', '', bot_response).strip()
                     print(f"🧭 Navigation detected: {navigate_to}")
+                    if forecast_city:
+                        print(f"  📍 City: {forecast_city}, Date: {forecast_date}")
             
+            # Create response data
             response_data = {
                 'success': True,
-                'response': bot_response
+                'response': bot_response,
+                'conversation_history': conversation_sessions[session_id]  # ✅ SEND BACK FULL HISTORY
             }
             
             # Add navigate_to if navigation was requested
             if navigate_to:
                 response_data['navigate_to'] = navigate_to
+                if forecast_city:
+                    response_data['forecast_city'] = forecast_city
+                if forecast_date:
+                    response_data['forecast_date'] = forecast_date
             
             return jsonify(response_data)
             
@@ -201,6 +339,20 @@ Since you have text-to-speech capabilities, speak naturally as if having a conve
                 'error': f"{type(e).__name__}: {str(e)}"
             }), 500
     
+    @app.route('/api/chat/clear', methods=['POST'])
+    def clear_conversation():
+        """Clear conversation history for a session"""
+        try:
+            data = request.json
+            session_id = data.get('session_id', 'default')
+            
+            if session_id in conversation_sessions:
+                del conversation_sessions[session_id]
+                print(f"🗑️ Cleared conversation history for session: {session_id}")
+            
+            return jsonify({'success': True})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)}), 500
     
     @app.route('/api/tts', methods=['POST'])
     def text_to_speech():
@@ -218,14 +370,12 @@ Since you have text-to-speech capabilities, speak naturally as if having a conve
                 'success': True,
                 'message': 'Using browser TTS'
             })
-            
         except Exception as e:
             print(f"Error in TTS endpoint: {str(e)}")
             return jsonify({
                 'success': False,
                 'error': str(e)
             }), 500
-    
     
     @app.route('/api/stt', methods=['POST'])
     def speech_to_text():
@@ -242,7 +392,6 @@ Since you have text-to-speech capabilities, speak naturally as if having a conve
                 'success': True,
                 'text': 'Using browser STT'
             })
-            
         except Exception as e:
             print(f"Error in STT endpoint: {str(e)}")
             return jsonify({
@@ -252,14 +401,13 @@ Since you have text-to-speech capabilities, speak naturally as if having a conve
     
     print("✅ Chatbot routes registered")
 
-
 def extract_date_from_message(message):
-    """Extract date from user message - IMPROVED VERSION"""
-    
-    # Try "oct 10" or "10 oct" format FIRST (most common)
+    """Extract date from user message"""
+    # Try "oct 10" or "10 oct" format FIRST
     simple_pattern = r'(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)|' \
-                    r'(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+(\d{1,2})'
+                     r'(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+(\d{1,2})'
     match = re.search(simple_pattern, message.lower())
+    
     if match:
         groups = match.groups()
         if groups[0] and groups[1]:  # "10 oct"
@@ -268,7 +416,7 @@ def extract_date_from_message(message):
             month_abbr, day = groups[2], groups[3]
         else:
             month_abbr, day = None, None
-            
+        
         if month_abbr and day:
             month_map = {
                 'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04',
@@ -293,27 +441,11 @@ def extract_date_from_message(message):
         day, month, year = match.groups()
         return f"{year}-{month.zfill(2)}-{day.zfill(2)}"
     
-    # Try full month names
-    month_pattern = r'(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s+(\d{4}))?'
-    match = re.search(month_pattern, message.lower())
-    if match:
-        month_name, day, year = match.groups()
-        month_map = {
-            'january': '01', 'february': '02', 'march': '03',
-            'april': '04', 'may': '05', 'june': '06',
-            'july': '07', 'august': '08', 'september': '09',
-            'october': '10', 'november': '11', 'december': '12'
-        }
-        month = month_map.get(month_name.lower(), '01')
-        year = year if year else '2025'
-        return f"{year}-{month}-{day.zfill(2)}"
-    
     print("⚠️ Could not extract date from message")
     return None
 
-
 def extract_city_from_message(message):
-    """Extract city from user message - WITH KERALA SUPPORT"""
+    """Extract city from user message - WITH MUNNAR SUPPORT"""
     cities = {
         # Major Indian cities
         'mumbai': 'Mumbai',
@@ -325,9 +457,9 @@ def extract_city_from_message(message):
         'pune': 'Pune',
         'ahmedabad': 'Ahmedabad',
         'jaipur': 'Jaipur',
-        'lucknow': 'Lucknow',
+        
         # Kerala cities
-        'kerala': 'Thiruvananthapuram',  # Map state to capital
+        'kerala': 'Thiruvananthapuram',
         'thiruvananthapuram': 'Thiruvananthapuram',
         'trivandrum': 'Thiruvananthapuram',
         'kochi': 'Kochi',
@@ -337,7 +469,8 @@ def extract_city_from_message(message):
         'thrissur': 'Thrissur',
         'kannur': 'Kannur',
         'kollam': 'Kollam',
-        'palakkad': 'Palakkad'
+        'palakkad': 'Palakkad',
+        'munnar': 'Kochi',  # ✅ MUNNAR MAPS TO KOCHI (NEAREST CITY)
     }
     
     message_lower = message.lower()

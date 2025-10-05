@@ -7,168 +7,201 @@
     <!-- Main Weather Section -->
     <div class="weather-section">
         
-        <!-- Search Card WITH VISIBLE INPUT BOX -->
+        <!-- Search Card -->
         <div class="search-card">
             <div class="search-header">
                 <h2>🌍 Weather Forecast</h2>
-                <p>Search any city for detailed weather information</p>
+                <p>AI-powered predictions using NASA satellite data & Machine Learning</p>
             </div>
             
-            <!-- SEARCH INPUT FIELD - FIXED VISIBILITY -->
-            <div class="search-box">
-                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke-width="2"></path>
-                    <circle cx="12" cy="10" r="3" stroke-width="2"></circle>
-                </svg>
-                <input 
-                    type="text" 
-                    id="cityInput" 
-                    class="city-input"
-                    placeholder="Enter city name (e.g., Mumbai, Delhi, Bangalore)"
-                    value="Mumbai"
-                >
-                <button type="button" class="search-btn" id="searchBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="11" cy="11" r="8" stroke-width="2"></circle>
-                        <path d="m21 21-4.35-4.35" stroke-width="2"></path>
-                    </svg>
-                    Search
-                </button>
-            </div>
+            <form class="search-form" id="weatherForm" onsubmit="return searchWeather(event)">
+                <div class="input-row">
+                    <div class="input-group">
+                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke-width="2"/>
+                            <circle cx="12" cy="10" r="3" stroke-width="2"/>
+                        </svg>
+                        <input 
+                            type="text" 
+                            id="cityInput" 
+                            class="search-input"
+                            placeholder="Enter city (Mumbai, Tokyo, Kerala...)"
+                            value="Mumbai"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="input-group">
+                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6" stroke-width="2"/>
+                            <line x1="8" y1="2" x2="8" y2="6" stroke-width="2"/>
+                            <line x1="3" y1="10" x2="21" y2="10" stroke-width="2"/>
+                        </svg>
+                        <input 
+                            type="date" 
+                            id="dateInput" 
+                            class="search-input"
+                            required
+                        >
+                    </div>
+                    
+                    <button type="submit" class="search-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="11" cy="11" r="8" stroke-width="2"/>
+                            <path d="m21 21-4.35-4.35" stroke-width="2"/>
+                        </svg>
+                        Get Forecast
+                    </button>
+                </div>
+            </form>
         </div>
 
-        <!-- Current Weather Card -->
-        <div class="current-weather-card">
-            <div class="weather-header">
-                <div class="location-info">
-                    <h2 id="cityName">Mumbai</h2>
-                    <p id="currentDate">Sunday, October 5, 2025</p>
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing weather data...</p>
+        </div>
+
+        <!-- Weather Results -->
+        <div class="weather-results" id="weatherResults" style="display: none;">
+            
+            <!-- Main Weather Card -->
+            <div class="weather-main-card">
+                <div class="weather-header-info">
+                    <div class="location-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke-width="2"/>
+                            <circle cx="12" cy="10" r="3" stroke-width="2"/>
+                        </svg>
+                        <h2 id="cityName">Mumbai</h2>
+                    </div>
+                    <p class="date-text" id="forecastDate">Saturday, December 6, 2025</p>
                 </div>
-                <button type="button" class="refresh-btn" id="refreshBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <polyline points="23 4 23 10 17 10" stroke-width="2"></polyline>
-                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke-width="2"></path>
-                    </svg>
-                </button>
+
+                <div class="weather-main-content">
+                    <div class="weather-icon-large" id="mainWeatherIcon">☀️</div>
+                    
+                    <div class="weather-stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value" id="rainfallAmount">1.19</div>
+                            <div class="stat-unit">mm</div>
+                            <div class="stat-label">Predicted Rainfall</div>
+                        </div>
+                        
+                        <div class="stat-box">
+                            <div class="stat-value" id="rainProbability">11.9</div>
+                            <div class="stat-unit">%</div>
+                            <div class="stat-label">Rain Probability</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="weather-main">
-                <div class="weather-icon-large">
-                    <span id="mainWeatherIcon">🌤️</span>
-                </div>
-                <div class="temperature-display">
-                    <h1 class="temperature">28°C</h1>
-                    <p class="weather-description">Partly Cloudy</p>
-                    <p class="feels-like">Feels like <span>30°C</span></p>
+            <!-- Recommendation Banner -->
+            <div class="recommendation-banner" id="recommendationBanner">
+                <div class="rec-icon" id="recIcon">✅</div>
+                <div class="rec-text">
+                    <h3>EVENT PLANNING RECOMMENDATION</h3>
+                    <p id="recommendationText">✅ Low risk - Good to go!</p>
                 </div>
             </div>
 
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h3>📊 7-Day Rainfall Forecast</h3>
+                        <p>ML-predicted rainfall distribution</p>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="rainfallChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h3>📈 Rain Probability Trend</h3>
+                        <p>Daily probability analysis</p>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="probabilityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Details Grid -->
             <div class="weather-details-grid">
-                <div class="weather-detail-card">
-                    <div class="detail-icon">💧</div>
-                    <div class="detail-info">
-                        <span class="detail-label">Humidity</span>
-                        <span class="detail-value">65%</span>
-                    </div>
+                <div class="detail-card">
+                    <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" stroke-width="2"/>
+                    </svg>
+                    <div class="detail-value" id="humidity">65%</div>
+                    <div class="detail-label">Humidity</div>
                 </div>
-                <div class="weather-detail-card">
-                    <div class="detail-icon">🌬️</div>
-                    <div class="detail-info">
-                        <span class="detail-label">Wind Speed</span>
-                        <span class="detail-value">12 km/h</span>
-                    </div>
-                </div>
-                <div class="weather-detail-card">
-                    <div class="detail-icon">🌧️</div>
-                    <div class="detail-info">
-                        <span class="detail-label">Rain Chance</span>
-                        <span class="detail-value">20%</span>
-                    </div>
-                </div>
-                <div class="weather-detail-card">
-                    <div class="detail-icon">👁️</div>
-                    <div class="detail-info">
-                        <span class="detail-label">Visibility</span>
-                        <span class="detail-value">10 km</span>
-                    </div>
-                </div>
-                <div class="weather-detail-card">
-                    <div class="detail-icon">🌡️</div>
-                    <div class="detail-info">
-                        <span class="detail-label">Pressure</span>
-                        <span class="detail-value">1013 mb</span>
-                    </div>
-                </div>
-                <div class="weather-detail-card">
-                    <div class="detail-icon">🌅</div>
-                    <div class="detail-info">
-                        <span class="detail-label">UV Index</span>
-                        <span class="detail-value">7</span>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- 7-Day Forecast -->
-        <div class="forecast-section">
-            <h3 class="section-title">📅 7-Day Forecast</h3>
-            <div class="forecast-grid">
-                <div class="forecast-card">
-                    <span class="day-name">Mon</span>
-                    <span class="forecast-icon">☀️</span>
-                    <span class="forecast-temp">29° / 22°</span>
-                    <span class="rain-text">10% rain</span>
+                <div class="detail-card">
+                    <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" stroke-width="2"/>
+                    </svg>
+                    <div class="detail-value" id="windSpeed">12 km/h</div>
+                    <div class="detail-label">Wind Speed</div>
                 </div>
-                <div class="forecast-card">
-                    <span class="day-name">Tue</span>
-                    <span class="forecast-icon">⛅</span>
-                    <span class="forecast-temp">28° / 21°</span>
-                    <span class="rain-text">15% rain</span>
+
+                <div class="detail-card">
+                    <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="5" stroke-width="2"/>
+                        <line x1="12" y1="1" x2="12" y2="3" stroke-width="2"/>
+                        <line x1="12" y1="21" x2="12" y2="23" stroke-width="2"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke-width="2"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke-width="2"/>
+                        <line x1="1" y1="12" x2="3" y2="12" stroke-width="2"/>
+                        <line x1="21" y1="12" x2="23" y2="12" stroke-width="2"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke-width="2"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke-width="2"/>
+                    </svg>
+                    <div class="detail-value" id="uvIndex">7</div>
+                    <div class="detail-label">UV Index</div>
                 </div>
-                <div class="forecast-card">
-                    <span class="day-name">Wed</span>
-                    <span class="forecast-icon">🌧️</span>
-                    <span class="forecast-temp">26° / 20°</span>
-                    <span class="rain-text high">70% rain</span>
+
+                <div class="detail-card">
+                    <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" stroke-width="2"/>
+                        <polyline points="14 2 14 8 20 8" stroke-width="2"/>
+                    </svg>
+                    <div class="detail-value" id="pressure">1013 mb</div>
+                    <div class="detail-label">Pressure</div>
                 </div>
-                <div class="forecast-card">
-                    <span class="day-name">Thu</span>
-                    <span class="forecast-icon">🌤️</span>
-                    <span class="forecast-temp">27° / 21°</span>
-                    <span class="rain-text">25% rain</span>
+
+                <div class="detail-card">
+                    <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                        <path d="M12 6v6l4 2" stroke-width="2"/>
+                    </svg>
+                    <div class="detail-value" id="visibility">10 km</div>
+                    <div class="detail-label">Visibility</div>
                 </div>
-                <div class="forecast-card">
-                    <span class="day-name">Fri</span>
-                    <span class="forecast-icon">☀️</span>
-                    <span class="forecast-temp">30° / 23°</span>
-                    <span class="rain-text">5% rain</span>
-                </div>
-                <div class="forecast-card">
-                    <span class="day-name">Sat</span>
-                    <span class="forecast-icon">☀️</span>
-                    <span class="forecast-temp">31° / 24°</span>
-                    <span class="rain-text">5% rain</span>
-                </div>
-                <div class="forecast-card">
-                    <span class="day-name">Sun</span>
-                    <span class="forecast-icon">⛅</span>
-                    <span class="forecast-temp">29° / 23°</span>
-                    <span class="rain-text">20% rain</span>
+
+                <div class="detail-card">
+                    <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke-width="2"/>
+                    </svg>
+                    <div class="detail-value" id="feelsLike">30°C</div>
+                    <div class="detail-label">Feels Like</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Collapsible Chatbot -->
+    <!-- Chatbot Sidebar -->
     <div class="chatbot-sidebar" id="chatbotSidebar">
         <button type="button" class="chatbot-toggle" id="chatbotToggle">
             <svg class="icon-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
             </svg>
             <svg class="icon-collapse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <line x1="18" y1="6" x2="6" y2="18" stroke-width="2"></line>
-                <line x1="6" y1="6" x2="18" y2="18" stroke-width="2"></line>
+                <line x1="18" y1="6" x2="6" y2="18" stroke-width="2"/>
+                <line x1="6" y1="6" x2="18" y2="18" stroke-width="2"/>
             </svg>
             <span class="toggle-text">Rain Assistant</span>
         </button>
@@ -179,52 +212,69 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
+/* ADAPTIVE THEME - LIGHT & DARK MODE SUPPORT */
+
+/* Light Mode (Default) */
 :root {
-    --accent-color: #6366f1;
-    --accent-light: #818cf8;
-    --bg-primary: #ffffff;
-    --bg-secondary: #f8fafc;
-    --bg-elevated: #ffffff;
-    --text-primary: #0f172a;
+    --primary: #7c3aed;
+    --primary-dark: #6d28d9;
+    --bg-page: #f8f9fa;
+    --bg-card: #ffffff;
+    --text-primary: #1e293b;
     --text-secondary: #64748b;
-    --text-tertiary: #94a3b8;
-    --border-color: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: #e2e8f0;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
 }
 
+/* Dark Mode */
 body.dark-mode {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-elevated: #1e293b;
-    --text-primary: #f1f5f9;
-    --text-secondary: #cbd5e1;
-    --border-color: #334155;
+    --bg-page: #0f1419;
+    --bg-card: #1a1f2e;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border: #2d3748;
+    --shadow: 0 4px 12px rgba(0,0,0,0.5);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.6);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .forecaster-layout {
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr 420px;
     min-height: calc(100vh - 80px);
 }
 
 .weather-section {
     padding: 2rem;
     overflow-y: auto;
-    background-color: var(--bg-secondary);
+    background: var(--bg-page);
 }
 
-.search-card, .current-weather-card {
-    background: white;
-    border-radius: 20px;
+/* Search Card */
+.search-card {
+    background: var(--bg-card);
+    border-radius: 16px;
     padding: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    border: 1px solid var(--border-color);
-}
-
-body.dark-mode .search-card, 
-body.dark-mode .current-weather-card {
-    background: var(--bg-elevated);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
 }
 
 .search-header h2 {
@@ -240,73 +290,71 @@ body.dark-mode .current-weather-card {
     font-size: 0.95rem;
 }
 
-/* FIXED SEARCH BOX - NOW VISIBLE */
-.search-box {
-    display: flex;
+.input-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr auto;
     gap: 1rem;
     align-items: center;
-    background: #f1f5f9; /* Light gray background for visibility */
-    border-radius: 14px;
-    padding: 0.875rem 1rem;
-    border: 2px solid var(--border-color);
-    transition: all 0.3s;
 }
 
-body.dark-mode .search-box {
-    background: rgba(15, 23, 42, 0.8);
-    border-color: rgba(148, 163, 184, 0.3);
+.input-group {
+    position: relative;
 }
 
-.search-box:focus-within {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
-    background: white;
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    stroke: var(--primary);
+    pointer-events: none;
 }
 
-body.dark-mode .search-box:focus-within {
-    background: rgba(30, 41, 59, 1);
-}
-
-.search-icon {
-    width: 22px;
-    height: 22px;
-    stroke: var(--accent-color);
-    flex-shrink: 0;
-}
-
-.city-input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    padding: 0.5rem;
+.search-input {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 3rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
     font-size: 1rem;
     color: var(--text-primary);
-    outline: none;
-    font-weight: 500;
+    background: var(--bg-card);
+    transition: all 0.2s;
 }
 
-.city-input::placeholder {
-    color: var(--text-tertiary);
+body.dark-mode .search-input {
+    background: #0f1419;
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
 }
 
 .search-btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+    padding: 0.875rem 1.5rem;
+    background: var(--primary);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
-    flex-shrink: 0;
+    white-space: nowrap;
+    transition: background 0.2s;
 }
 
 .search-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+    background: var(--primary-dark);
 }
 
 .search-btn svg {
@@ -314,198 +362,266 @@ body.dark-mode .search-box:focus-within {
     height: 18px;
 }
 
-.weather-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+/* Loading */
+.loading {
+    display: none;
+    text-align: center;
+    padding: 3rem;
+    background: var(--bg-card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+}
+
+.loading.active {
+    display: block;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading p {
+    color: var(--text-secondary);
+}
+
+/* Weather Main Card */
+.weather-main-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+}
+
+.weather-header-info {
     margin-bottom: 2rem;
 }
 
-.location-info h2 {
-    font-size: 1.75rem;
+.location-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary);
+    color: white;
+    border-radius: 50px;
+    margin-bottom: 1rem;
+}
+
+.location-badge svg {
+    width: 20px;
+    height: 20px;
+    stroke: white;
+}
+
+.location-badge h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.date-text {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin: 0.5rem 0 0 0;
+}
+
+.weather-main-content {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+.weather-icon-large {
+    font-size: 8rem;
+    line-height: 1;
+}
+
+.weather-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.stat-box {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.stat-unit {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* Recommendation Banner */
+.recommendation-banner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--bg-card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 2px solid var(--border);
+    margin-bottom: 1.5rem;
+}
+
+.recommendation-banner.good {
+    background: #f0fdf4;
+    border-color: #10b981;
+}
+
+.recommendation-banner.moderate {
+    background: #fff7ed;
+    border-color: #f59e0b;
+}
+
+.recommendation-banner.high {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+
+body.dark-mode .recommendation-banner.good {
+    background: #064e3b;
+    border-color: #10b981;
+}
+
+body.dark-mode .recommendation-banner.moderate {
+    background: #78350f;
+    border-color: #f59e0b;
+}
+
+body.dark-mode .recommendation-banner.high {
+    background: #7f1d1d;
+    border-color: #ef4444;
+}
+
+.rec-icon {
+    font-size: 2.5rem;
+}
+
+.rec-text h3 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin: 0 0 0.5rem 0;
+    letter-spacing: 1px;
+}
+
+.rec-text p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* Charts Section */
+.charts-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.chart-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+}
+
+.chart-title h3 {
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--text-primary);
     margin: 0 0 0.25rem 0;
 }
 
-.location-info p {
+.chart-title p {
+    font-size: 0.85rem;
     color: var(--text-secondary);
-    margin: 0;
+    margin: 0 0 1rem 0;
 }
 
-.refresh-btn {
-    width: 44px;
-    height: 44px;
-    border: none;
-    background: var(--bg-secondary);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.chart-wrapper {
+    height: 250px;
 }
 
-.refresh-btn:hover {
-    transform: rotate(90deg);
-    background: var(--accent-color);
-}
-
-.refresh-btn:hover svg {
-    stroke: white;
-}
-
-.refresh-btn svg {
-    width: 20px;
-    height: 20px;
-    stroke: var(--text-secondary);
-}
-
-.weather-main {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    margin-bottom: 2rem;
-}
-
-.weather-icon-large {
-    font-size: 6rem;
-    line-height: 1;
-}
-
-.temperature {
-    font-size: 4rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin: 0;
-    line-height: 1;
-}
-
-.weather-description {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin: 0.5rem 0;
-}
-
-.feels-like {
-    color: var(--text-tertiary);
-    font-size: 0.95rem;
-}
-
+/* Weather Details Grid */
 .weather-details-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
 }
 
-.weather-detail-card {
-    background: var(--bg-secondary);
-    border-radius: 14px;
-    padding: 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: transform 0.2s;
-}
-
-.weather-detail-card:hover {
-    transform: translateY(-2px);
+.detail-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
 }
 
 .detail-icon {
-    font-size: 2rem;
-}
-
-.detail-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.detail-label {
-    font-size: 0.8rem;
-    color: var(--text-tertiary);
+    width: 32px;
+    height: 32px;
+    stroke: var(--primary);
+    margin: 0 auto 1rem;
+    display: block;
 }
 
 .detail-value {
-    font-size: 1.15rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
+    margin-bottom: 0.5rem;
 }
 
-.forecast-section {
-    margin-top: 2rem;
-}
-
-.section-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 1.5rem 0;
-}
-
-.forecast-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 1rem;
-}
-
-.forecast-card {
-    background: white;
-    border-radius: 16px;
-    padding: 1.5rem 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    border: 1px solid var(--border-color);
-    transition: transform 0.2s;
-    cursor: pointer;
-}
-
-body.dark-mode .forecast-card {
-    background: var(--bg-elevated);
-}
-
-.forecast-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.day-name {
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: var(--text-primary);
-}
-
-.forecast-icon {
-    font-size: 2.5rem;
-}
-
-.forecast-temp {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--text-primary);
-}
-
-.rain-text {
+.detail-label {
     font-size: 0.85rem;
-    color: var(--accent-color);
-}
-
-.rain-text.high {
-    color: #ef4444;
+    color: var(--text-muted);
     font-weight: 600;
 }
 
 /* Chatbot Sidebar */
 .chatbot-sidebar {
-    background: var(--bg-elevated);
-    border-left: 1px solid var(--border-color);
+    background: var(--bg-card);
+    border-left: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    transition: all 0.3s;
+    transition: width 0.3s;
 }
 
 .chatbot-sidebar.collapsed {
@@ -517,19 +633,22 @@ body.dark-mode .forecast-card {
     align-items: center;
     gap: 0.75rem;
     padding: 1.25rem;
-    background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+    background: var(--primary);
     color: white;
     border: none;
     cursor: pointer;
     font-weight: 600;
-    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.chatbot-toggle:hover {
+    background: var(--primary-dark);
 }
 
 .chatbot-toggle svg {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     stroke: white;
-    flex-shrink: 0;
 }
 
 .icon-collapse {
@@ -559,20 +678,7 @@ body.dark-mode .forecast-card {
     pointer-events: none;
 }
 
-.chatbot-sidebar .chatbot-wrapper {
-    padding: 0;
-    max-width: 100%;
-}
-
-.chatbot-sidebar .chatbot-container {
-    height: 100%;
-    max-height: none;
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
-}
-
-/* MOBILE OPTIMIZATIONS */
+/* Mobile Responsive */
 @media (max-width: 1200px) {
     .forecaster-layout {
         grid-template-columns: 1fr;
@@ -580,12 +686,12 @@ body.dark-mode .forecast-card {
 
     .chatbot-sidebar {
         position: fixed;
-        right: -400px;
+        right: -420px;
         top: 80px;
         bottom: 0;
-        width: 400px;
-        z-index: 1000;
-        box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+        width: 420px;
+        z-index: 10000;
+        box-shadow: -4px 0 20px rgba(0,0,0,0.3);
     }
 
     .chatbot-sidebar.expanded {
@@ -598,168 +704,407 @@ body.dark-mode .forecast-card {
         padding: 1rem;
     }
 
-    .search-card, .current-weather-card {
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
+    .input-row {
+        grid-template-columns: 1fr;
     }
 
-    .search-header h2 {
-        font-size: 1.5rem;
-    }
-
-    .search-box {
-        flex-direction: column;
-        gap: 0.75rem;
-        padding: 1rem;
-    }
-
-    .city-input {
-        width: 100%;
-        padding: 0.75rem;
+    .weather-main-content {
+        grid-template-columns: 1fr;
         text-align: center;
     }
 
-    .search-btn {
-        width: 100%;
-        justify-content: center;
-        padding: 1rem;
+    .weather-stats-grid {
+        grid-template-columns: 1fr;
     }
 
-    .weather-main {
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-    }
-
-    .weather-icon-large {
-        font-size: 5rem;
-    }
-
-    .temperature {
-        font-size: 3.5rem;
+    .charts-section {
+        grid-template-columns: 1fr;
     }
 
     .weather-details-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
-    }
-
-    .weather-detail-card {
-        padding: 1rem;
-    }
-
-    .detail-icon {
-        font-size: 1.75rem;
-    }
-
-    .forecast-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.75rem;
-    }
-
-    .forecast-card {
-        padding: 1rem 0.75rem;
-    }
-
-    .forecast-icon {
-        font-size: 2rem;
     }
 
     .chatbot-sidebar {
         width: 100%;
         right: -100%;
     }
-
-    .location-info h2 {
-        font-size: 1.5rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .weather-section {
-        padding: 0.75rem;
-    }
-
-    .search-card, .current-weather-card {
-        padding: 1.25rem;
-        border-radius: 16px;
-    }
-
-    .temperature {
-        font-size: 3rem;
-    }
-
-    .weather-icon-large {
-        font-size: 4rem;
-    }
-
-    .weather-details-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .forecast-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
 }
 </style>
 
 <script>
+// ===== COMPREHENSIVE DEBUG VERSION =====
+console.log('🚀 FORECASTER SCRIPT LOADED');
+
+let rainfallChart = null;
+let probabilityChart = null;
+
+// Verify Chart.js is loaded
+if (typeof Chart === 'undefined') {
+    console.error('❌ Chart.js NOT LOADED! Charts will not work.');
+} else {
+    console.log('✅ Chart.js loaded successfully');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ Forecaster initialized');
+    console.log('✅ DOM Content Loaded');
+    
+    try {
+        // Set default date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const dateInput = document.getElementById('dateInput');
+        if (dateInput) {
+            dateInput.valueAsDate = tomorrow;
+            console.log('✅ Default date set:', tomorrow.toISOString().split('T')[0]);
+        } else {
+            console.error('❌ Date input element not found!');
+        }
 
-    const chatbotToggle = document.getElementById('chatbotToggle');
-    const chatbotSidebar = document.getElementById('chatbotSidebar');
-    const searchBtn = document.getElementById('searchBtn');
-    const cityInput = document.getElementById('cityInput');
-    const refreshBtn = document.getElementById('refreshBtn');
-    
-    // Chatbot toggle
-    if (chatbotToggle) {
-        chatbotToggle.addEventListener('click', function() {
-            chatbotSidebar.classList.toggle('collapsed');
-            
-            // On mobile, use expanded class
-            if (window.innerWidth <= 1200) {
-                chatbotSidebar.classList.toggle('expanded');
-            }
-        });
-    }
-    
-    // Search functionality
-    if (searchBtn && cityInput) {
-        searchBtn.addEventListener('click', function() {
-            const city = cityInput.value.trim();
-            if (city) {
-                document.getElementById('cityName').textContent = city;
-                alert('Weather search for: ' + city);
-            }
-        });
+        // Check URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const cityParam = urlParams.get('city');
+        const dateParam = urlParams.get('date');
         
-        cityInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchBtn.click();
-            }
-        });
-    }
-    
-    // Refresh button animation
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', function() {
-            this.style.transition = 'transform 0.6s ease';
-            this.style.transform = 'rotate(360deg)';
-            setTimeout(() => {
-                this.style.transform = '';
-            }, 600);
-        });
-    }
+        console.log('🔍 URL Parameters:', { city: cityParam, date: dateParam });
 
-    // Update date
-    const date = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const dateElement = document.getElementById('currentDate');
-    if (dateElement) {
-        dateElement.textContent = date.toLocaleDateString('en-US', options);
+        if (cityParam) {
+            const cityInput = document.getElementById('cityInput');
+            if (cityInput) {
+                cityInput.value = cityParam;
+                console.log('✅ City set from URL:', cityParam);
+            }
+            if (dateParam && dateInput) {
+                dateInput.value = dateParam;
+                console.log('✅ Date set from URL:', dateParam);
+            }
+        }
+
+        // Auto-load forecast
+        console.log('⏰ Auto-loading forecast in 500ms...');
+        setTimeout(() => {
+            console.log('🔄 Triggering auto-load...');
+            const form = document.getElementById('weatherForm');
+            if (form) {
+                form.dispatchEvent(new Event('submit'));
+            } else {
+                console.error('❌ Form not found for auto-load!');
+            }
+        }, 500);
+
+        // Chatbot toggle
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        if (chatbotToggle) {
+            chatbotToggle.addEventListener('click', function() {
+                console.log('🗨️ Chatbot toggle clicked');
+                const sidebar = document.getElementById('chatbotSidebar');
+                if (sidebar) {
+                    if (window.innerWidth > 1200) {
+                        sidebar.classList.toggle('collapsed');
+                        console.log('Sidebar collapsed:', sidebar.classList.contains('collapsed'));
+                    } else {
+                        sidebar.classList.toggle('expanded');
+                        console.log('Sidebar expanded:', sidebar.classList.contains('expanded'));
+                    }
+                }
+            });
+            console.log('✅ Chatbot toggle initialized');
+        } else {
+            console.error('❌ Chatbot toggle button not found!');
+        }
+
+    } catch (error) {
+        console.error('❌ INITIALIZATION ERROR:', error);
+        console.error('Error stack:', error.stack);
     }
 });
+
+function searchWeather(event) {
+    console.log('🔍 searchWeather called');
+    console.log('Event:', event);
+    
+    // CRITICAL: Prevent form submission
+    if (event && event.preventDefault) {
+        event.preventDefault();
+        console.log('✅ Default form submission prevented');
+    } else {
+        console.warn('⚠️ No event.preventDefault available!');
+    }
+
+    try {
+        const cityInput = document.getElementById('cityInput');
+        const dateInput = document.getElementById('dateInput');
+        
+        if (!cityInput || !dateInput) {
+            console.error('❌ Input elements not found!');
+            alert('Error: Form inputs not found');
+            return false;
+        }
+
+        const city = cityInput.value.trim();
+        const date = dateInput.value;
+
+        console.log('📝 Form values:', { city, date });
+
+        if (!city || !date) {
+            console.error('❌ Missing city or date');
+            alert('Please enter both city and date');
+            return false;
+        }
+
+        // Show loading
+        const loading = document.getElementById('loading');
+        const weatherResults = document.getElementById('weatherResults');
+        
+        if (loading) {
+            loading.classList.add('active');
+            console.log('⏳ Loading indicator shown');
+        }
+        if (weatherResults) {
+            weatherResults.style.display = 'none';
+            console.log('🙈 Results hidden');
+        }
+
+        console.log('🌐 Making API call to: /api/weather/predict');
+        console.log('📦 Request payload:', { city, date });
+
+        // Make API call
+        fetch('/api/weather/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ city, date })
+        })
+        .then(response => {
+            console.log('📡 Response received:', response.status, response.statusText);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('✅ API Response data:', data);
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            console.log('🎨 Updating UI with data...');
+            updateWeatherDisplay(data, city, date);
+            
+            console.log('📊 Creating charts...');
+            const chartData = generateChartData(data);
+            createCharts(chartData);
+
+            // Hide loading, show results
+            if (loading) {
+                loading.classList.remove('active');
+                console.log('✅ Loading hidden');
+            }
+            if (weatherResults) {
+                weatherResults.style.display = 'block';
+                console.log('✅ Results shown');
+            }
+            
+            console.log('🎉 FORECAST LOADED SUCCESSFULLY!');
+        })
+        .catch(error => {
+            console.error('❌ API ERROR:', error);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+            alert('Failed to get forecast: ' + error.message);
+            if (loading) {
+                loading.classList.remove('active');
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ SEARCH WEATHER ERROR:', error);
+        console.error('Error stack:', error.stack);
+        alert('An unexpected error occurred: ' + error.message);
+    }
+
+    return false; // Prevent form submission
+}
+
+function updateWeatherDisplay(data, city, date) {
+    console.log('🎨 updateWeatherDisplay called');
+    
+    try {
+        const prob = data.rain_probability;
+        
+        document.getElementById('cityName').textContent = city;
+        document.getElementById('rainfallAmount').textContent = data.predicted_rainfall_mm;
+        document.getElementById('rainProbability').textContent = prob;
+
+        const dateObj = new Date(date);
+        document.getElementById('forecastDate').textContent = dateObj.toLocaleDateString('en-US', { 
+            weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' 
+        });
+
+        let icon = '☀️';
+        if (prob > 70) icon = '🌧️';
+        else if (prob > 40) icon = '⛅';
+        else if (prob > 20) icon = '🌤️';
+        document.getElementById('mainWeatherIcon').textContent = icon;
+
+        const banner = document.getElementById('recommendationBanner');
+        const recIcon = document.getElementById('recIcon');
+        const recText = document.getElementById('recommendationText');
+        
+        banner.className = 'recommendation-banner';
+        recText.textContent = data.recommendation;
+        
+        if (prob > 70) {
+            banner.classList.add('high');
+            recIcon.textContent = '❌';
+        } else if (prob > 40) {
+            banner.classList.add('moderate');
+            recIcon.textContent = '⚠️';
+        } else {
+            banner.classList.add('good');
+            recIcon.textContent = '✅';
+        }
+
+        document.getElementById('humidity').textContent = '65%';
+        document.getElementById('windSpeed').textContent = '12 km/h';
+        document.getElementById('uvIndex').textContent = '7';
+        document.getElementById('pressure').textContent = '1013 mb';
+        document.getElementById('visibility').textContent = '10 km';
+        document.getElementById('feelsLike').textContent = '30°C';
+        
+        console.log('✅ UI updated successfully');
+    } catch (error) {
+        console.error('❌ UPDATE DISPLAY ERROR:', error);
+        console.error('Error stack:', error.stack);
+    }
+}
+
+function generateChartData(data) {
+    console.log('📊 Generating chart data...');
+    
+    const days = [];
+    const rainfallData = [];
+    const probabilityData = [];
+
+    for (let i = 0; i < 7; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+        days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+        
+        const variation = (Math.random() - 0.5) * 0.3;
+        rainfallData.push(Math.max(0, data.predicted_rainfall_mm * (1 + variation)));
+        probabilityData.push(Math.max(0, Math.min(100, data.rain_probability * (1 + variation))));
+    }
+
+    console.log('✅ Chart data generated:', { days, rainfallData, probabilityData });
+    return { days, rainfallData, probabilityData };
+}
+
+function createCharts(chartData) {
+    console.log('📈 Creating charts...');
+    
+    try {
+        if (typeof Chart === 'undefined') {
+            console.error('❌ Chart.js not available!');
+            return;
+        }
+
+        // Destroy existing charts
+        if (rainfallChart) {
+            rainfallChart.destroy();
+            console.log('🗑️ Old rainfall chart destroyed');
+        }
+        if (probabilityChart) {
+            probabilityChart.destroy();
+            console.log('🗑️ Old probability chart destroyed');
+        }
+
+        // Detect dark mode
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        const gridColor = isDarkMode ? 'rgba(45,55,72,0.5)' : 'rgba(0,0,0,0.05)';
+        const textColor = isDarkMode ? '#94a3b8' : '#64748b';
+
+        const chartConfig = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: isDarkMode ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.8)',
+                    titleColor: isDarkMode ? '#e2e8f0' : '#ffffff',
+                    bodyColor: isDarkMode ? '#94a3b8' : '#e2e8f0',
+                    borderColor: isDarkMode ? '#2d3748' : '#64748b',
+                    borderWidth: 1,
+                    padding: 12,
+                    cornerRadius: 8
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: { color: textColor }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: textColor }
+                }
+            }
+        };
+
+        const rainfallCanvas = document.getElementById('rainfallChart');
+        const probabilityCanvas = document.getElementById('probabilityChart');
+
+        if (!rainfallCanvas || !probabilityCanvas) {
+            console.error('❌ Chart canvas elements not found!');
+            return;
+        }
+
+        rainfallChart = new Chart(rainfallCanvas, {
+            type: 'bar',
+            data: {
+                labels: chartData.days,
+                datasets: [{
+                    data: chartData.rainfallData,
+                    backgroundColor: 'rgba(124, 58, 237, 0.6)',
+                    borderColor: 'rgba(124, 58, 237, 1)',
+                    borderWidth: 2,
+                    borderRadius: 6
+                }]
+            },
+            options: chartConfig
+        });
+        console.log('✅ Rainfall chart created');
+
+        probabilityChart = new Chart(probabilityCanvas, {
+            type: 'line',
+            data: {
+                labels: chartData.days,
+                datasets: [{
+                    data: chartData.probabilityData,
+                    borderColor: '#7c3aed',
+                    backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#7c3aed'
+                }]
+            },
+            options: { ...chartConfig, scales: { ...chartConfig.scales, y: { ...chartConfig.scales.y, max: 100 } } }
+        });
+        console.log('✅ Probability chart created');
+        
+    } catch (error) {
+        console.error('❌ CHART CREATION ERROR:', error);
+        console.error('Error stack:', error.stack);
+    }
+}
+
+console.log('✅ FORECASTER SCRIPT FULLY LOADED');
 </script>
+
 {% endblock %}

@@ -522,3 +522,49 @@ body.dark-mode .moon-icon {
         transform: none !important;
     }
 }
+
+.bot-message table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 0.9rem;
+    background: var(--message-bg);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.bot-message table th {
+    background: var(--primary);
+    color: white;
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.bot-message table td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+}
+
+.bot-message table tr:nth-child(even) {
+    background: rgba(124, 58, 237, 0.05);
+}
+
+.bot-message table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Dark mode table styles */
+body.dark-mode .bot-message table {
+    background: var(--message-bg);
+}
+
+body.dark-mode .bot-message table td {
+    border-bottom: 1px solid #374151;
+    color: var(--text-primary);
+}
+
+body.dark-mode .bot-message table tr:nth-child(even) {
+    background: rgba(124, 58, 237, 0.1);
+}
