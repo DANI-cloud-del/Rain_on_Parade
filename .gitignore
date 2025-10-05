@@ -26,3 +26,33 @@ build/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Environment variables
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model files (optional - upload separately if large)
+weather_model.pkl
+
+# Data
+data/events.json
